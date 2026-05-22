@@ -1,0 +1,19 @@
+node_modules
+dist
+.env
+
+# Session / auth data (regenerated at runtime)
+*_sessions
+sessions
+bot_sessions
+*tokens
+.wwebjs*
+
+# Logs and temp files
+*.log
+bot.qr.png
+uploads
+
+# Git
+.git
+.gitignore

@@ -1,0 +1,393 @@
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+   ║ Pantalla "Conexiones" — multi-WhatsApp por tienda                          ║
+   ╠═══════════════════════════════════════════════════════════════════════════╣
+   ║ Reemplaza el contenido del sub-tab "Tiendas" dentro de Mi Qhatu. Mantiene  ║
+   ║ los demás tabs (Workflow / Inventario / Envíos / Probar tu Qhatu) sin     ║
+   ║ tocar — solo afecta el bloque cuando data-kipu-tab="crea".                 ║
+   ║                                                                            ║
+   ║ Todo está scoped bajo `.qhatu-conexiones-panel` para no contaminar el     ║
+   ║ resto del dashboard (que usa Liquid Glass / clases .lg-*). Las variables  ║
+   ║ CSS de paleta también están scoped al wrapper, así no chocan con tokens   ║
+   ║ globales que tengan el mismo nombre (--cream, --navy, etc.).               ║
+   ╚═══════════════════════════════════════════════════════════════════════════╝
+*/
+
+.qhatu-conexiones-panel{
+    /* paleta scoped — referencia: mi-qhatu-conexiones.html */
+    --qx-cream:#f4eee1;
+    --qx-cream-deep:#ece3d0;
+    --qx-paper:#fffdf8;
+    --qx-navy:#202942;
+    --qx-navy-soft:#5a6080;
+    --qx-navy-faint:#9a9eb0;
+    --qx-terracota:#c25738;
+    --qx-terracota-deep:#a4452b;
+    --qx-terracota-tint:#f6e4dc;
+    --qx-sage:#3f8c46;
+    --qx-sage-tint:#e3efe2;
+    --qx-amber:#cf8b1e;
+    --qx-amber-tint:#f6ecd4;
+    --qx-ocean:#2f6f8f;
+    --qx-slate:#7b8194;
+    --qx-slate-tint:#e9e9ed;
+    --qx-line:#e7ddca;
+    --qx-ink-faint:#a89f8b;
+    --qx-shadow:38px 38px 80px -40px rgba(32,41,66,.45);
+
+    width:100%;max-width:560px;margin:8px auto 28px;
+    background:var(--qx-paper);
+    border:1px solid var(--qx-line);
+    border-radius:28px;
+    box-shadow:var(--qx-shadow);
+    overflow:hidden;position:relative;
+    color:var(--qx-navy);
+    font-family:'Outfit',-apple-system,BlinkMacSystemFont,sans-serif;
+    animation:qx-rise .55s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes qx-rise{from{opacity:0;transform:translateY(18px) scale(.985);}to{opacity:1;transform:none;}}
+
+.qhatu-conexiones-panel::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,var(--qx-terracota),var(--qx-amber) 55%,var(--qx-ocean));
+}
+
+/* ── header ── */
+.qhatu-conexiones-panel .qx-head{display:flex;align-items:center;gap:14px;padding:24px 24px 16px;}
+.qhatu-conexiones-panel .qx-h-ico{
+    width:46px;height:46px;flex-shrink:0;border-radius:14px;
+    background:var(--qx-terracota-tint);color:var(--qx-terracota-deep);
+    display:flex;align-items:center;justify-content:center;
+}
+.qhatu-conexiones-panel .qx-h-ico svg{width:23px;height:23px;}
+.qhatu-conexiones-panel .qx-head h2{
+    font-family:'Fraunces',serif;font-weight:600;font-size:22px;
+    letter-spacing:-.01em;line-height:1.1;color:var(--qx-navy);margin:0;
+}
+.qhatu-conexiones-panel .qx-head p{
+    font-size:12.5px;color:var(--qx-navy-faint);margin:2px 0 0;
+}
+
+/* ── stats strip ── */
+.qhatu-conexiones-panel .qx-stats{
+    display:flex;gap:8px;padding:0 24px 4px;flex-wrap:wrap;
+}
+.qhatu-conexiones-panel .qx-stat{
+    display:flex;align-items:center;gap:7px;
+    font-size:12px;font-weight:600;color:var(--qx-navy-soft);
+    background:var(--qx-cream);border:1px solid var(--qx-line);
+    border-radius:999px;padding:6px 12px;
+    font-family:'Outfit',sans-serif;
+}
+.qhatu-conexiones-panel .qx-stat-dot{width:8px;height:8px;border-radius:50%;}
+.qhatu-conexiones-panel .qx-stat-dot.on{background:var(--qx-sage);}
+.qhatu-conexiones-panel .qx-stat-dot.wait{background:var(--qx-amber);}
+.qhatu-conexiones-panel .qx-stat-dot.off{background:var(--qx-slate);}
+.qhatu-conexiones-panel .qx-stat b{font-family:'Fraunces',serif;color:var(--qx-navy);font-weight:600;}
+
+/* ── lista de conexiones ── */
+.qhatu-conexiones-panel .qx-list{padding:16px 18px 8px;display:flex;flex-direction:column;gap:11px;}
+.qhatu-conexiones-panel .qx-empty{
+    text-align:center;padding:30px 18px;color:var(--qx-navy-faint);
+    font-size:13px;font-family:'Outfit',sans-serif;
+}
+
+.qhatu-conexiones-panel .qx-conn{
+    position:relative;
+    background:var(--qx-paper);
+    border:1px solid var(--qx-line);
+    border-radius:16px;
+    padding:15px 16px 14px 18px;
+    overflow:hidden;
+    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    animation:qx-cardin .5s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes qx-cardin{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.qhatu-conexiones-panel .qx-conn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 26px -16px rgba(32,41,66,.4);
+    border-color:var(--qx-cream-deep);
+}
+.qhatu-conexiones-panel .qx-conn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;}
+.qhatu-conexiones-panel .qx-conn.on::before{background:var(--qx-sage);}
+.qhatu-conexiones-panel .qx-conn.wait::before{background:var(--qx-amber);}
+.qhatu-conexiones-panel .qx-conn.off::before{background:var(--qx-slate);}
+
+.qhatu-conexiones-panel .qx-conn-top{display:flex;align-items:center;gap:12px;}
+.qhatu-conexiones-panel .qx-avatar{
+    width:42px;height:42px;flex-shrink:0;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#fff;
+    position:relative;
+}
+/* 5 colores rotativos para avatares — se eligen por hash del botId
+   en JS para que cada tienda mantenga el mismo color entre reloads. */
+.qhatu-conexiones-panel .qx-avatar.qx-c0{background:#c25738;}
+.qhatu-conexiones-panel .qx-avatar.qx-c1{background:#2f6f8f;}
+.qhatu-conexiones-panel .qx-avatar.qx-c2{background:#cf8b1e;}
+.qhatu-conexiones-panel .qx-avatar.qx-c3{background:#3f8c46;}
+.qhatu-conexiones-panel .qx-avatar.qx-c4{background:#6a6f86;}
+.qhatu-conexiones-panel .qx-live{
+    position:absolute;right:-3px;bottom:-3px;
+    width:13px;height:13px;border-radius:50%;
+    border:2.5px solid var(--qx-paper);
+}
+.qhatu-conexiones-panel .qx-live.on{background:var(--qx-sage);}
+.qhatu-conexiones-panel .qx-live.wait{background:var(--qx-amber);}
+.qhatu-conexiones-panel .qx-live.off{background:var(--qx-slate);}
+
+.qhatu-conexiones-panel .qx-conn-info{flex:1;min-width:0;}
+.qhatu-conexiones-panel .qx-conn-store{
+    font-size:14.5px;font-weight:600;color:var(--qx-navy);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.qhatu-conexiones-panel .qx-conn-num{
+    font-size:13px;color:var(--qx-navy-soft);
+    display:flex;align-items:center;gap:6px;margin-top:2px;
+}
+.qhatu-conexiones-panel .qx-conn-num svg{width:13px;height:13px;color:var(--qx-ink-faint);}
+
+.qhatu-conexiones-panel .qx-pill{
+    font-size:11px;font-weight:700;
+    padding:5px 10px;border-radius:999px;
+    display:flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.qhatu-conexiones-panel .qx-pill.on{background:var(--qx-sage-tint);color:var(--qx-sage);}
+.qhatu-conexiones-panel .qx-pill.wait{background:var(--qx-amber-tint);color:var(--qx-amber);}
+.qhatu-conexiones-panel .qx-pill.off{background:var(--qx-slate-tint);color:var(--qx-slate);}
+.qhatu-conexiones-panel .qx-pdot{width:6px;height:6px;border-radius:50%;}
+.qhatu-conexiones-panel .qx-pill.on .qx-pdot{background:var(--qx-sage);animation:qx-pulse 2.4s infinite;}
+.qhatu-conexiones-panel .qx-pill.wait .qx-pdot{background:var(--qx-amber);animation:qx-pulse-amber 1.8s infinite;}
+.qhatu-conexiones-panel .qx-pill.off .qx-pdot{background:var(--qx-slate);}
+@keyframes qx-pulse{
+    0%{box-shadow:0 0 0 0 rgba(63,140,70,.5);}
+    70%{box-shadow:0 0 0 6px rgba(63,140,70,0);}
+    100%{box-shadow:0 0 0 0 rgba(63,140,70,0);}
+}
+@keyframes qx-pulse-amber{
+    0%{box-shadow:0 0 0 0 rgba(207,139,30,.5);}
+    70%{box-shadow:0 0 0 6px rgba(207,139,30,0);}
+    100%{box-shadow:0 0 0 0 rgba(207,139,30,0);}
+}
+
+.qhatu-conexiones-panel .qx-conn-foot{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:13px;padding-top:12px;border-top:1px dashed var(--qx-line);
+    gap:12px;
+}
+.qhatu-conexiones-panel .qx-meta{
+    font-size:12px;color:var(--qx-ink-faint);
+    display:flex;align-items:center;gap:6px;min-width:0;flex:1;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.qhatu-conexiones-panel .qx-meta svg{width:13px;height:13px;flex-shrink:0;}
+.qhatu-conexiones-panel .qx-meta b{color:var(--qx-navy-soft);font-weight:600;}
+
+/* botones del panel — scoped, no sobreescriben los .btn globales */
+.qhatu-conexiones-panel .qx-btn{
+    font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;
+    border-radius:9px;padding:7px 14px;cursor:pointer;
+    transition:.16s ease;border:1px solid transparent;
+    background:transparent;color:var(--qx-navy-soft);border-color:var(--qx-line);
+    flex-shrink:0;
+}
+.qhatu-conexiones-panel .qx-btn:hover{background:var(--qx-cream);color:var(--qx-navy);}
+.qhatu-conexiones-panel .qx-btn:disabled{opacity:.55;cursor:not-allowed;}
+.qhatu-conexiones-panel .qx-btn.primary{
+    background:var(--qx-terracota);color:#fff;
+    box-shadow:0 6px 14px -7px rgba(194,87,56,.8);border-color:transparent;
+}
+.qhatu-conexiones-panel .qx-btn.primary:hover{background:var(--qx-terracota-deep);transform:translateY(-1px);color:#fff;}
+.qhatu-conexiones-panel .qx-btn.danger{color:var(--qx-terracota);border-color:transparent;background:transparent;padding:5px 8px;font-size:11.5px;}
+.qhatu-conexiones-panel .qx-btn.danger:hover{background:var(--qx-terracota-tint);color:var(--qx-terracota-deep);}
+
+/* ── add number card ── */
+.qhatu-conexiones-panel .qx-add{
+    margin:3px 18px 0;
+    border:1.6px dashed var(--qx-cream-deep);
+    border-radius:16px;
+    padding:16px;
+    display:flex;align-items:center;gap:12px;
+    cursor:pointer;
+    transition:.18s ease;
+    background:transparent;width:calc(100% - 36px);
+    text-align:left;font-family:'Outfit',sans-serif;
+}
+.qhatu-conexiones-panel .qx-add:hover{border-color:var(--qx-terracota);background:var(--qx-terracota-tint);}
+.qhatu-conexiones-panel .qx-add .qx-plus{
+    width:38px;height:38px;border-radius:11px;
+    background:var(--qx-cream);color:var(--qx-terracota);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:.18s ease;
+}
+.qhatu-conexiones-panel .qx-add:hover .qx-plus{background:#fff;}
+.qhatu-conexiones-panel .qx-add .qx-plus svg{width:19px;height:19px;}
+.qhatu-conexiones-panel .qx-add-txt h4{font-size:13.5px;font-weight:600;color:var(--qx-navy);margin:0;}
+.qhatu-conexiones-panel .qx-add-txt p{font-size:11.5px;color:var(--qx-navy-faint);margin:1px 0 0;}
+
+/* ── QR drawer (un solo drawer compartido, se abre con un botId activo) ── */
+.qhatu-conexiones-panel .qx-qr-drawer{
+    margin:14px 18px 4px;
+    border:1px solid var(--qx-line);
+    border-radius:18px;
+    background:var(--qx-cream);
+    overflow:hidden;
+    max-height:0;opacity:0;
+    transition:max-height .4s ease, opacity .3s ease, margin .3s ease;
+}
+.qhatu-conexiones-panel .qx-qr-drawer.open{max-height:480px;opacity:1;}
+.qhatu-conexiones-panel .qx-qr-inner{padding:20px;display:flex;gap:18px;align-items:center;}
+.qhatu-conexiones-panel .qx-qr-box{
+    width:128px;height:128px;flex-shrink:0;
+    background:#fff;border:1px solid var(--qx-line);
+    border-radius:14px;padding:9px;
+    display:flex;align-items:center;justify-content:center;
+}
+.qhatu-conexiones-panel .qx-qr-box img{width:100%;height:100%;display:block;}
+.qhatu-conexiones-panel .qx-qr-box .qx-qr-spinner{
+    width:36px;height:36px;border-radius:50%;
+    border:3px solid var(--qx-cream-deep);
+    border-top-color:var(--qx-terracota);
+    animation:qx-spin 1s linear infinite;
+}
+@keyframes qx-spin{to{transform:rotate(360deg);}}
+.qhatu-conexiones-panel .qx-qr-steps h4{
+    font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--qx-navy);margin:0;
+}
+.qhatu-conexiones-panel .qx-qr-steps ol{margin:9px 0 0;padding:0;list-style:none;counter-reset:s;}
+.qhatu-conexiones-panel .qx-qr-steps li{
+    counter-increment:s;
+    font-size:12px;color:var(--qx-navy-soft);
+    padding:3px 0 3px 24px;position:relative;line-height:1.5;
+}
+.qhatu-conexiones-panel .qx-qr-steps li::before{
+    content:counter(s);
+    position:absolute;left:0;top:3px;
+    width:17px;height:17px;border-radius:50%;
+    background:var(--qx-terracota);color:#fff;
+    font-size:10px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+}
+.qhatu-conexiones-panel .qx-qr-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:11px 20px;
+    border-top:1px dashed var(--qx-line);
+    font-size:11.5px;color:var(--qx-amber);font-weight:600;
+}
+.qhatu-conexiones-panel .qx-qr-foot .qx-pdot{width:7px;height:7px;border-radius:50%;background:var(--qx-amber);animation:qx-pulse-amber 1.8s infinite;}
+.qhatu-conexiones-panel .qx-qr-foot .qx-qr-target{
+    color:var(--qx-navy-soft);font-family:'Fraunces',serif;font-weight:600;font-size:12px;
+}
+
+.qhatu-conexiones-panel .qx-note{
+    margin:14px 24px 22px;
+    font-size:11.5px;color:var(--qx-navy-faint);
+    line-height:1.55;
+    display:flex;gap:8px;
+}
+.qhatu-conexiones-panel .qx-note svg{width:15px;height:15px;flex-shrink:0;color:var(--qx-ocean);margin-top:1px;}
+
+/* responsive */
+@media (max-width:560px){
+    .qhatu-conexiones-panel .qx-qr-inner{flex-direction:column;align-items:flex-start;}
+    .qhatu-conexiones-panel .qx-qr-box{width:100%;max-width:160px;height:auto;aspect-ratio:1;}
+    .qhatu-conexiones-panel .qx-conn-foot{flex-wrap:wrap;}
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   MODAL OVERLAY — el panel Conexiones se abre como diálogo modal scope
+   a una tienda específica (no como pantalla embebida en el sub-tab
+   "Tiendas"). El backdrop se cierra al click; close button con × arriba
+   a la derecha.
+
+   Trigger: botón "Conectar" en la tarjeta de tienda del store-hub
+            (handler window.openConnectModal en app.js, ahora delega a
+             connOpenModal). data-qx-tienda-id lleva el botId activo.
+
+   El panel adentro reutiliza .qhatu-conexiones-panel — para que el ancho
+   y el padding se adapten a un diálogo en lugar de full-flow se usa la
+   variante .qhatu-conexiones-panel--modal.
+   ════════════════════════════════════════════════════════════════════ */
+.qhatu-conexiones-overlay{
+    position:fixed;inset:0;z-index:11000;
+    display:none;
+    align-items:flex-start;justify-content:center;
+    padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));
+    overflow-y:auto;
+}
+.qhatu-conexiones-overlay.qx-open{display:flex;}
+.qhatu-conexiones-overlay .qhatu-conexiones-backdrop{
+    position:absolute;inset:0;
+    background:rgba(15,17,30,0.55);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    animation:qx-fade .25s ease both;
+}
+@keyframes qx-fade{from{opacity:0;}to{opacity:1;}}
+
+.qhatu-conexiones-overlay .qhatu-conexiones-panel--modal{
+    position:relative;
+    margin:0;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+    z-index:1;
+}
+
+.qhatu-conexiones-panel .qx-modal-close{
+    position:absolute;top:14px;right:14px;
+    width:34px;height:34px;border-radius:50%;
+    background:rgba(255,255,255,0.95);
+    /* Antes color:var(--qx-navy-soft) (#5a6080) — sobre el fondo blanco/crema
+       del modal el ✕ se veía casi invisible. Pintamos el ícono en terracota
+       (color de marca, igual que el degradado del header). */
+    border:1px solid var(--qx-terracota-tint);
+    color:var(--qx-terracota);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;z-index:5;
+    /* font para el ✕ del ::before (fallback ante SVG que no renderiza) */
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:22px;font-weight:500;line-height:1;
+    padding:0;
+    transition:background .15s ease,color .15s ease,border-color .15s ease,transform .15s ease;
+}
+/* ✕ como pseudo-elemento — garantiza un glifo visible aunque el SVG interno
+   no llegue a pintar (algunos contextos del panel ocultaban los <line>). */
+.qhatu-conexiones-panel .qx-modal-close::before{
+    content:'\00d7'; /* "×" */
+    color:inherit;
+    line-height:1;
+    font-weight:500;
+    margin-top:-2px; /* ajuste óptico — la × cae apenas alta */
+}
+/* Si quedaba algún SVG legacy dentro del botón, lo escondemos para no
+   superponer dos íconos. */
+.qhatu-conexiones-panel .qx-modal-close svg{display:none;}
+.qhatu-conexiones-panel .qx-modal-close:hover{
+    background:var(--qx-terracota-tint);
+    color:var(--qx-terracota-deep);
+    border-color:var(--qx-terracota);
+    transform:scale(1.05);
+}
+
+.qhatu-conexiones-panel .qx-tienda-label{
+    display:inline-block;
+    margin-left:6px;
+    padding:2px 10px;
+    background:var(--qx-cream);
+    border:1px solid var(--qx-line);
+    border-radius:999px;
+    font-size:0.62em;font-weight:600;
+    color:var(--qx-navy-soft);
+    letter-spacing:0.01em;
+    vertical-align:middle;
+    transform:translateY(-2px);
+}
+.qhatu-conexiones-panel .qx-tienda-label:empty{display:none;}
+
+@media (max-width:560px){
+    .qhatu-conexiones-overlay{padding:0;align-items:stretch;}
+    .qhatu-conexiones-overlay .qhatu-conexiones-panel--modal{
+        border-radius:0;
+        max-height:100vh;
+        max-width:100%;
+    }
+}

@@ -1,0 +1,2498 @@
+/* ═════════════════════════════════════════════════════════════════════════
+   Qhatu — Willy Onboarding Wizard
+   Stack: vanilla CSS + Web Animations API + ES modules
+   Convención: todos los selectores con prefijo .qw- bajo .qhatu-wizard
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.qhatu-wizard {
+  /* Paleta — sección 2.1 del spec.
+     Paridad con la landing: agregamos tokens de oro y barro para que el
+     panel respire los mismos acentos navy + dorado + naranja que se ven
+     en la landing y en el FAB del widget de pruebas. */
+  --qhatu-cream: #F5EFE3;
+  --qhatu-paper: #FBF7EE;
+  --qhatu-white: #FFFFFF;
+  --qhatu-red: #C8341E;
+  --qhatu-red-dark: #A52A1F;
+  --qhatu-red-soft: #F5E6E2;
+  --qhatu-navy: #1A1A2E;
+  /* Oro y barro — alineados con la landing (--oro #C89537, --barro #B8503A) */
+  --qhatu-gold: #C89537;
+  --qhatu-gold-soft: #F5E8C9;
+  --qhatu-gold-deep: #8B6420;
+  --qhatu-gold-light: #E0B687;
+  --qhatu-orange: #EA580C;
+  --qhatu-orange-soft: #FFE8D9;
+  --qhatu-gray: #6B6B7D;
+  --qhatu-gray-light: #B8B8C5;
+  --qhatu-border: #E8E2D5;
+  --qhatu-success: #2E7D5A;
+  --qhatu-warning: #D97706;
+  --qhatu-error: #DC2626;
+  --color-yape: #6B2C91;
+  --color-plin: #00B5A1;
+  --qw-font-serif: 'Playfair Display', 'Cormorant Garamond', 'Georgia', serif;
+  --qw-font-sans: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
+
+  position: relative;
+  min-height: calc(100vh - 4rem);
+  background: var(--qhatu-cream);
+  border-radius: 16px;
+  font-family: var(--qw-font-sans);
+  color: var(--qhatu-navy);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Cuando el dropdown de tienda está visible en la sección Configuración,
+   ocultamos el "¡Listo!" / "Paso N de 5" del header del wizard — el
+   "¡Listo!" se renderiza grande sobre Willy (en screen6) y el dropdown
+   queda como header de la sección.  */
+#section-prueba.has-bot-selector .qw-step-label { visibility: hidden; }
+/* Mismo ajuste cuando el wizard vive en el modal de Tiendas */
+#store-willy-modal.store-willy-modal--has-selector .qw-step-label { visibility: hidden; }
+
+/* Título grande "¡Listo!" sobre Willy en la pantalla de cierre (P6) */
+.qw-listo-headline {
+  font-family: var(--qw-font-serif);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--qhatu-navy);
+  text-align: center;
+  margin: 0 0 1rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ── Header (progress + exit) ───────────────────────────────────────────── */
+.qw-header {
+  padding: 1rem 2rem 0.75rem;
+  background: var(--qhatu-cream);
+  flex-shrink: 0;
+}
+.qw-progress {
+  height: 4px;
+  background: rgba(26, 26, 46, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.qw-progress-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--qhatu-red), var(--qhatu-red-dark));
+  border-radius: 999px;
+  transition: width 0.4s ease-out;
+}
+.qw-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  min-height: 24px;
+}
+.qw-step-label {
+  font-size: 13px;
+  color: var(--qhatu-gray);
+  font-weight: 500;
+}
+.qw-exit-btn {
+  background: transparent;
+  border: none;
+  color: var(--qhatu-gray);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+.qw-exit-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--qhatu-navy);
+}
+.qw-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* Atrás en el header — mismo flujo que el footer; oculto en paso 0 (wizard.js). */
+.qw-header-back {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--qhatu-gray);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease-out, color 0.15s ease-out, border-color 0.15s ease-out, transform 0.15s ease-out;
+}
+.qw-header-back:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--qhatu-navy);
+  border-color: rgba(0, 0, 0, 0.14);
+}
+.qw-header-back:active:not(:disabled) { transform: scale(0.97); }
+.qw-header-back:focus-visible {
+  outline: 2px solid var(--qhatu-red);
+  outline-offset: 2px;
+}
+
+/* ── Contenido (área central) ──────────────────────────────────────────── */
+/* min-height: 0 + overflow: el flex item puede encogerse y hacer scroll;
+   sin esto el .qw-scene crece con el formulario y se superpone al footer.
+   align-items: flex-start evita el bug de "centro + overflow" donde la
+   parte superior del contenido queda fuera del scroll (p. ej. burbuja P2).
+   El centrado vertical en pantallas cortas lo hace margin-block: auto en .qw-scene. */
+.qw-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(1rem, 3vw, 3rem) clamp(1rem, 4vw, 4rem);
+}
+
+.qw-scene {
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  max-width: 1400px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+/* ── Willy (3 wrappers para componer entry + sway + breath) ────────────── */
+/* outer:  entry slide-in (transform translateY)
+   middle: sway eterna (transform rotate)
+   inner:  breath eterna (transform scaleY)
+   IMG:    fuente, mix-blend-mode multiply para fundir blanco con crema */
+.qw-willy {
+  flex-shrink: 0;
+  width: clamp(220px, 28vw, 480px);
+  height: clamp(260px, 32vw, 540px);
+  position: relative;
+  animation: qw-willy-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+.qw-willy-sway {
+  width: 100%;
+  height: 100%;
+  /* TODO: requiere SVG por partes - migrar cuando llegue el SVG.
+     Sway con PNG rotaba el cuerpo entero (queda raro). Mantenemos el
+     wrapper montado para que el SVG migre sin tocar la estructura del DOM
+     ni las pantallas — solo se reactiva la animación acá. */
+  transform-origin: 50% 90%;
+}
+.qw-willy-breath {
+  width: 100%;
+  height: 100%;
+  animation: qw-breath 3s ease-in-out infinite;
+  transform-origin: 50% 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qw-willy-breath img,
+.qw-willy-breath svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Fonde el blanco del PNG con el fondo crema (mismo truco que la sección
+     anterior). Solo se ven los trazos rojos del personaje. */
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Sombra elíptica difusa bajo Willy — refuerza la sensación de "flotando" */
+.qw-willy::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 70%;
+  height: clamp(14px, 2vw, 28px);
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(165, 42, 31, 0.18), rgba(165, 42, 31, 0) 70%);
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: -1;
+  animation: qw-shadow 3s ease-in-out infinite;
+}
+
+/* Reacciones del personaje a la interacción
+   Hover: TODO: requiere SVG por partes - migrar cuando llegue el SVG.
+   Por ahora, sustituto razonable: scale 1.02 del PNG entero. Se siente vivo
+   sin pretender que la cabeza rota sola (el head tracking real del spec
+   necesita partes separables del personaje). */
+.qw-willy.qw-react-hover {
+    transform: scale(1.02);
+    transition: transform 0.2s ease-out;
+}
+.qw-willy.qw-jump { animation: qw-jump 0.3s ease-out; }
+
+@keyframes qw-willy-in {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes qw-breath {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.02); }
+}
+/* TODO: requiere SVG por partes - migrar cuando llegue el SVG.
+   Keyframe queda definido pero NO aplicado a ningún elemento por ahora;
+   con el SVG se aplicará solo a la cabeza (no al cuerpo completo). */
+@keyframes qw-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(2deg); }
+}
+@keyframes qw-shadow {
+  0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 0.55; transform: translateX(-50%) scale(0.85); }
+}
+@keyframes qw-jump {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+/* ── Speech bubble ─────────────────────────────────────────────────────── */
+.qw-bubble {
+  position: relative;
+  background: var(--qhatu-white);
+  border: 2px solid var(--qhatu-red-dark);
+  border-radius: 18px;
+  padding: clamp(20px, 2.5vw, 32px) clamp(24px, 3vw, 40px);
+  max-width: min(640px, 50vw);
+  flex: 1;
+  box-shadow: 0 6px 24px rgba(26, 26, 46, 0.10);
+  transform-origin: bottom left;
+  animation: qw-bubble-in 0.3s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+/* Cola: triángulo con borde, apunta a la izquierda hacia Willy */
+.qw-bubble::before,
+.qw-bubble::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0; height: 0;
+  border-style: solid;
+}
+.qw-bubble::before {
+  left: -22px;
+  margin-top: -16px;
+  border-width: 16px 22px 16px 0;
+  border-color: transparent var(--qhatu-red-dark) transparent transparent;
+}
+.qw-bubble::after {
+  left: -18px;
+  margin-top: -12px;
+  border-width: 12px 18px 12px 0;
+  border-color: transparent var(--qhatu-white) transparent transparent;
+}
+.qw-bubble-text {
+  font-family: var(--qw-font-serif);
+  font-weight: 500;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.3;
+  color: var(--qhatu-navy, #1A1A2E);
+  margin: 0 0 1.25rem;
+  text-align: center;
+  min-height: 1.3em; /* evita layout shift mientras corre el typewriter */
+}
+.qw-bubble-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+@keyframes qw-bubble-in {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ── Botones ───────────────────────────────────────────────────────────── */
+.qw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: filter 0.18s ease-out, transform 0.18s ease-out, background 0.18s ease-out, color 0.18s ease-out, box-shadow 0.18s ease-out;
+  text-align: center;
+  user-select: none;
+  border: 1.5px solid transparent;
+  white-space: nowrap;
+}
+.qw-btn:focus-visible {
+  outline: 2px solid var(--qhatu-red, #C8341E);
+  outline-offset: 2px;
+}
+.qw-btn-primary {
+  background: var(--qhatu-red, #C8341E);
+  color: var(--qhatu-white, #ffffff);
+  border-color: var(--qhatu-red, #C8341E);
+}
+.qw-btn-primary:hover:not(:disabled) {
+  filter: brightness(0.92);
+  transform: scale(1.03) rotate(0.5deg);
+  box-shadow: 0 8px 20px rgba(200, 52, 30, 0.28);
+}
+.qw-btn-primary:active:not(:disabled) { transform: scale(0.96); }
+
+.qw-btn-secondary {
+  background: var(--qhatu-white, #ffffff);
+  color: var(--qhatu-red, #C8341E);
+  border-color: var(--qhatu-red, #C8341E);
+}
+.qw-btn-secondary:hover:not(:disabled) {
+  background: var(--qhatu-red-soft, #F5E6E2);
+  transform: scale(1.02) rotate(-0.4deg);
+}
+.qw-btn-secondary:active:not(:disabled) { transform: scale(0.97); }
+
+.qw-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.qw-btn[data-stagger] {
+  animation: qw-stagger-in 0.25s ease-out backwards;
+}
+@keyframes qw-stagger-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+/* ── Form styles (P1+) ─────────────────────────────────────────────────── */
+/* Estructura: la columna derecha de la escena agrupa bubble (pregunta) +
+   form. En desktop ambos van en la misma columna; en mobile heredan el
+   stack vertical de .qw-scene. */
+.qw-right {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2vw, 1.75rem);
+    flex: 1;
+    min-width: 0;
+    max-width: min(640px, 55vw);
+    position: relative;
+    z-index: 1;
+}
+
+/* En P1+, la pregunta es más larga que en P0 (no es un saludo de 1 línea).
+   La alineamos a la izquierda para que se lea como conversación, no como
+   eslogan centrado. */
+.qw-bubble-text-left { text-align: left; }
+
+.qw-form {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.85rem, 1.2vw, 1.25rem);
+}
+.qw-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    /* Stagger-in suave — se asigna animation-delay inline por cada field */
+    animation: qw-stagger-in 0.25s ease-out backwards;
+}
+.qw-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--qhatu-gray);
+    user-select: none;
+}
+.qw-input,
+.qw-textarea {
+    background: var(--qhatu-white);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--qhatu-navy);
+    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    width: 100%;
+    box-sizing: border-box;
+}
+.qw-input::placeholder,
+.qw-textarea::placeholder {
+    color: var(--qhatu-gray-light);
+}
+.qw-input:focus,
+.qw-textarea:focus {
+    outline: none;
+    border-color: var(--qhatu-red);
+    box-shadow: 0 0 0 3px rgba(200, 52, 30, 0.12);
+}
+.qw-input.qw-input-error,
+.qw-textarea.qw-input-error {
+    border-color: var(--qhatu-error);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.10);
+}
+.qw-textarea {
+    resize: vertical;
+    min-height: 84px;
+    line-height: 1.5;
+}
+.qw-helper {
+    font-size: 13px;
+    color: var(--qhatu-gray);
+    line-height: 1.4;
+}
+.qw-error {
+    font-size: 13px;
+    color: var(--qhatu-error);
+    line-height: 1.4;
+    font-weight: 500;
+}
+/* Cuando no hay mensaje, no reservamos espacio — evita layout shift */
+.qw-error:empty {
+    display: none;
+}
+
+/* Variante ancha para pantallas con listas (productos, envíos) */
+.qw-right-wide {
+    max-width: min(820px, 70vw);
+}
+
+/* ── P3 layout: bubble apilada arriba, contenido full-width abajo ──────── */
+/* P3 tiene tanto contenido (4 radio cards + sub-flujos) que el layout
+   side-by-side de P1/P2 no funciona. Apilamos Willy+bubble arriba como
+   "encabezado" y todo el form ocupa el ancho completo abajo. */
+.qw-scene-stacked {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: min(900px, 100%);
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 1.5rem;
+}
+.qw-scene-stacked .qw-scene-head {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2rem);
+    min-width: 0;
+}
+.qw-scene-stacked .qw-willy {
+    width: clamp(120px, 16vw, 220px);
+    height: clamp(140px, 18vw, 240px);
+}
+.qw-scene-stacked .qw-bubble {
+    max-width: none;
+    flex: 1;
+    min-width: 0;
+}
+.qw-p3-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* ── Radio cards (P3 tipo selector) ─────────────────────────────────────── */
+.qw-radio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+/* Modifier para los 3 tipos de entrega de P3 (Recojo / Domicilio / Ninguno
+   en línea). Las modalidades dentro de grupos siguen siendo 2x2 con su
+   propio modifier .qw-modalidad-grid. */
+.qw-radio-grid-3col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.qw-radio-grid-4col {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+/* En tablet (< 980px) 4 cards apretadas no entran cómodas → 2×2 */
+@media (max-width: 980px) {
+    .qw-radio-grid-4col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.qw-radio-card {
+    display: flex;
+    flex-direction: column;
+    /* `align-items: stretch` (default) — antes era flex-start que NO
+       estira los hijos en cross-axis (= ancho), causando que los <span>
+       de título/descripción se quedaran con su ancho de contenido y se
+       desbordaran fuera del card en lugar de envolver. */
+    align-items: stretch;
+    gap: 0.35rem;
+    padding: 1rem 1.15rem;
+    min-width: 0;
+    /* IMPORTANTE: overflow:hidden corta cualquier desborde residual de
+       contenido inline (p. ej. palabras larguísimas sin espacios) en
+       lugar de empujar el ancho del card hacia afuera. Combinado con
+       overflow-wrap en los spans, esto garantiza que el texto siempre
+       quede contenido. */
+    overflow: hidden;
+    background: var(--qhatu-white);
+    border: 1.5px solid var(--qhatu-border);
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: border-color 0.2s ease-out, background 0.2s ease-out,
+                opacity 0.25s ease-out, transform 0.25s ease-out,
+                box-shadow 0.2s ease-out;
+}
+.qw-radio-card:hover { border-color: var(--qhatu-red-dark); }
+.qw-radio-card:focus-visible {
+    outline: 2px solid var(--qhatu-red);
+    outline-offset: 2px;
+}
+.qw-radio-card-selected {
+    border: 2px solid var(--qhatu-red);
+    background: var(--qhatu-red-soft);
+    /* Cancelar el padding-shift que el border:2 produce sin reducir */
+    padding: calc(1rem - 0.5px) calc(1.15rem - 0.5px);
+    box-shadow: 0 6px 18px rgba(200, 52, 30, 0.16);
+}
+/* Estado "deshabilitada": cuando hay otra opción activa, las cards no
+   seleccionadas se atenúan + bloquean el cursor para forzar al usuario a
+   deseleccionar la actual antes de cambiar (mutex estricto). */
+.qw-radio-card-disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    background: var(--qhatu-cream);
+    border-color: var(--qhatu-border);
+    box-shadow: none;
+    filter: saturate(0.6);
+    pointer-events: auto; /* dejamos eventos para mostrar el shake al click */
+}
+.qw-radio-card-disabled:hover {
+    border-color: var(--qhatu-border);
+    transform: none;
+}
+.qw-radio-card-disabled .qw-radio-card-title,
+.qw-radio-card-disabled .qw-radio-card-desc {
+    color: var(--qhatu-gray);
+}
+
+/* Hint debajo de las cards — explica el comportamiento mutex. Solo
+   visible cuando hay una opción activa. */
+.qw-radio-hint {
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--qhatu-gray, #6B6B7D);
+    font-style: italic;
+    line-height: 1.45;
+}
+
+.qw-radio-card-faded {
+    opacity: 0.55;
+    transform: scale(0.96);
+}
+.qw-radio-card-pop {
+    animation: qw-radio-pop 0.3s ease-out;
+}
+@keyframes qw-radio-pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+.qw-radio-card-emoji {
+    font-size: 22px;
+    line-height: 1;
+    margin-bottom: 0.15rem;
+}
+.qw-radio-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--qhatu-navy);
+    /* display:block + width:100% para forzar al span a ocupar todo el
+       ancho del card. min-width:0 es crítico porque flex items tienen
+       min-width:auto implícito (= ancho del contenido), lo que impedía
+       que se redujeran y envolvieran. */
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+    line-height: 1.25;
+    white-space: normal;
+}
+.qw-radio-card-desc {
+    font-size: 13px;
+    color: var(--qhatu-gray);
+    line-height: 1.4;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+    white-space: normal;
+}
+
+/* Ajustes específicos para grid de 4 columnas — las cards quedan más
+   estrechas, así que bajamos padding/font para que el texto respire. */
+.qw-radio-grid-4col .qw-radio-card {
+    padding: 0.85rem 0.9rem;
+    gap: 0.3rem;
+}
+.qw-radio-grid-4col .qw-radio-card-title {
+    font-size: 14px;
+}
+.qw-radio-grid-4col .qw-radio-card-desc {
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+/* ── Subformularios P3 (slide-down + fade al aparecer) ──────────────────── */
+.qw-subforms {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.qw-subform {
+    animation: qw-subform-in 0.35s ease-out backwards;
+}
+.qw-subform-title {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--qhatu-navy);
+    margin: 0 0 0.85rem;
+    letter-spacing: -0.01em;
+}
+@keyframes qw-subform-in {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Local card (P3 Locales) ────────────────────────────────────────────── */
+.qw-locales-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.qw-local-card {
+    background: var(--qhatu-paper);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    overflow: hidden;
+}
+.qw-local-card[data-initial] {
+    animation: qw-card-enter 0.3s ease-out backwards;
+    animation-delay: calc(var(--qw-card-index, 0) * 60ms);
+}
+.qw-local-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: -0.25rem;
+}
+.qw-local-card-num {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--qhatu-navy);
+}
+.qw-local-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+}
+
+/* Local card en modo saved — resumen compacto */
+.qw-local-card-saved {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+.qw-local-card-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+}
+.qw-local-card-title {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--qhatu-navy);
+}
+.qw-local-card-meta,
+.qw-local-card-horario {
+    font-size: 13px;
+    color: var(--qhatu-gray);
+    line-height: 1.4;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+.qw-local-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Botón "sm" — versión compacta del secondary, para acciones del resumen */
+.qw-btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+/* ── Respuesta Qhatu (autogen) — header con label + Regenerar pill ──────── */
+.qw-respuesta-field {
+    background: rgba(0, 0, 82, 0.025);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-top: 0.25rem;
+}
+.qw-respuesta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.55rem;
+    flex-wrap: wrap;
+}
+.qw-respuesta-label {
+    flex: 1;
+    min-width: 0;
+}
+/* Paridad visual con el botón Regenerar del modal "Configura tus envíos"
+   en app.js (indigo #4f46e5). Si querés volver al rojo de marca, usar
+   var(--qhatu-red) y rgba(200,52,30,...). */
+.qw-btn-regenerar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(99, 102, 241, 0.08);
+    color: #4f46e5;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease-out, color 0.15s ease-out,
+                transform 0.15s ease-out, opacity 0.15s ease-out;
+    white-space: nowrap;
+}
+.qw-btn-regenerar:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.16);
+    color: #4338ca;
+    border-color: #6366f1;
+}
+.qw-btn-regenerar:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.qw-btn-regenerar-icon {
+    display: inline-block;
+    transition: transform 0.3s ease-out;
+}
+.qw-btn-regenerar:hover:not(:disabled) .qw-btn-regenerar-icon {
+    transform: rotate(180deg);
+}
+.qw-respuesta-footer {
+    margin-top: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.qw-respuesta-helper {
+    margin: 0;
+}
+
+/* Legacy — el bloque .qw-local-respuesta-actions ya no se usa (movido al
+   header). Mantengo el CSS para no romper si alguna pantalla aún lo refiere. */
+.qw-local-respuesta-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.4rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.qw-btn-link {
+    background: transparent;
+    border: none;
+    color: var(--qhatu-red);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.15s ease-out;
+}
+.qw-btn-link:hover:not(:disabled) { color: var(--qhatu-red-dark); text-decoration: underline; }
+.qw-btn-link:disabled { opacity: 0.4; cursor: not-allowed; }
+.qw-btn-link-icon {
+    display: inline-block;
+    transition: transform 0.3s ease-out;
+}
+.qw-btn-link:hover:not(:disabled) .qw-btn-link-icon { transform: rotate(180deg); }
+.qw-local-respuesta-status {
+    font-size: 12px;
+    color: var(--qhatu-gray);
+    font-style: italic;
+}
+
+/* ── Select de región (single) — usa los estilos base de qw-input ───────── */
+.qw-region-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6B7D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+/* ── Coverage warning banner (P3 iter 2) ────────────────────────────────── */
+.qw-coverage-warning {
+    background: rgba(217, 119, 6, 0.08);
+    border: 1px solid rgba(217, 119, 6, 0.30);
+    color: var(--qhatu-warning);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.qw-coverage-warning-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--qhatu-warning);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease-out;
+}
+.qw-coverage-warning-toggle:hover {
+    background: rgba(217, 119, 6, 0.12);
+}
+.qw-coverage-warning-icon { font-size: 16px; line-height: 1; }
+.qw-coverage-warning-text { flex: 1; }
+.qw-coverage-warning-caret {
+    font-size: 12px;
+    transition: transform 0.2s ease-out;
+}
+.qw-coverage-warning-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0 1rem 0.85rem;
+    animation: qw-coverage-expand 0.2s ease-out;
+}
+.qw-coverage-warning-list[hidden] {
+    display: none;
+}
+@keyframes qw-coverage-expand {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Region picker multi (P3 Grupos) ────────────────────────────────────── */
+.qw-region-picker {
+    background: var(--qhatu-white);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 12px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+.qw-region-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.qw-region-counter {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--qhatu-gray);
+    letter-spacing: 0.02em;
+}
+.qw-region-atajos {
+    display: flex;
+    gap: 0.4rem;
+}
+.qw-region-atajos .qw-btn-link {
+    font-size: 12px;
+    padding: 2px 4px;
+}
+.qw-region-search {
+    font-size: 13px;
+    padding: 8px 12px;
+}
+.qw-region-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--qhatu-gray);
+    margin-bottom: 0.3rem;
+}
+.qw-region-selected-list,
+.qw-region-options-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-height: 32px;
+}
+.qw-region-options-list {
+    align-items: flex-start;
+}
+.qw-region-empty {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    font-size: 13px;
+    color: var(--qhatu-gray);
+    font-style: italic;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(184, 184, 197, 0.06),
+        rgba(184, 184, 197, 0.06) 8px,
+        rgba(184, 184, 197, 0.12) 8px,
+        rgba(184, 184, 197, 0.12) 16px
+    );
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Chips de regiones (seleccionadas, read-only, warning) */
+.qw-region-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--qhatu-paper);
+    color: var(--qhatu-navy);
+    border: 1px solid var(--qhatu-border);
+    cursor: default;
+}
+.qw-region-chip-selected {
+    background: var(--qhatu-red);
+    color: var(--qhatu-white);
+    border-color: var(--qhatu-red);
+    cursor: pointer;
+    transition: filter 0.15s ease-out, transform 0.15s ease-out;
+}
+.qw-region-chip-selected:hover {
+    filter: brightness(0.92);
+    transform: scale(1.03);
+}
+.qw-region-chip-selected:active { transform: scale(0.97); }
+.qw-region-chip-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.85;
+}
+.qw-region-chip-readonly {
+    background: var(--qhatu-paper);
+    color: var(--qhatu-gray);
+}
+.qw-region-chip-warning {
+    background: rgba(217, 119, 6, 0.10);
+    color: var(--qhatu-warning);
+    border-color: rgba(217, 119, 6, 0.30);
+}
+
+/* Botones de regiones disponibles (chips clickeables) */
+.qw-region-option {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid var(--qhatu-border);
+    transition: background 0.15s ease-out, color 0.15s ease-out, transform 0.15s ease-out;
+}
+.qw-region-option-available {
+    background: var(--qhatu-white);
+    color: var(--qhatu-navy);
+}
+.qw-region-option-available:hover {
+    background: var(--qhatu-red-soft);
+    border-color: var(--qhatu-red);
+    transform: scale(1.03);
+}
+.qw-region-option-taken {
+    background: rgba(184, 184, 197, 0.08);
+    color: var(--qhatu-gray-light);
+    border-style: dashed;
+    border-color: var(--qhatu-gray-light);
+    cursor: pointer;
+}
+.qw-region-option-taken:hover {
+    background: rgba(217, 119, 6, 0.08);
+    border-color: var(--qhatu-warning);
+    color: var(--qhatu-warning);
+}
+.qw-region-option-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.qw-region-taken-label {
+    font-size: 10px;
+    color: var(--qhatu-gray);
+    margin-top: 2px;
+    text-align: center;
+    font-style: italic;
+}
+.qw-region-options-separator {
+    width: 100%;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--qhatu-gray);
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px dashed var(--qhatu-border);
+    text-align: center;
+}
+
+/* ── Shipping group card ────────────────────────────────────────────────── */
+.qw-shipping-groups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.qw-shipping-group-card {
+    background: var(--qhatu-paper);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    overflow: hidden;
+}
+.qw-shipping-group-card[data-initial] {
+    animation: qw-card-enter 0.3s ease-out backwards;
+}
+.qw-shipping-group-card-empty {
+    border-color: var(--qhatu-warning);
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.08);
+}
+.qw-shipping-group-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: -0.25rem;
+}
+.qw-shipping-group-card-num {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--qhatu-navy);
+}
+.qw-shipping-group-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.qw-shipping-group-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+}
+
+/* Saved card: chips compactas en resumen */
+.qw-shipping-group-region-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+.qw-summary-line {
+    font-size: 13px;
+    color: var(--qhatu-gray);
+    line-height: 1.5;
+}
+.qw-summary-line strong {
+    color: var(--qhatu-navy);
+    font-weight: 600;
+}
+
+/* Empty group warning banner (dentro de la card) */
+.qw-shipping-group-empty-warning {
+    background: rgba(217, 119, 6, 0.08);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+    border-radius: 10px;
+    padding: 0.75rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+.qw-shipping-group-empty-warning-text {
+    font-size: 14px;
+    color: var(--qhatu-warning);
+    font-weight: 500;
+}
+.qw-shipping-group-empty-warning-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.qw-btn-danger {
+    background: var(--qhatu-white);
+    color: var(--qhatu-error);
+    border: 1.5px solid var(--qhatu-error);
+}
+.qw-btn-danger:hover:not(:disabled) {
+    background: rgba(220, 38, 38, 0.08);
+}
+
+/* Modalidad / Pago grids — comparten estilo con .qw-radio-grid */
+.qw-modalidad-grid {
+    grid-template-columns: 1fr 1fr;
+}
+.qw-pago-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+}
+.qw-radio-card-h {
+    /* Versión "horizontal" más compacta para la sección de pago */
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 0.95rem;
+}
+.qw-radio-card-h .qw-radio-card-emoji { margin-bottom: 0; }
+.qw-radio-card-h .qw-radio-card-desc { display: none; }
+
+.qw-modalidad-fields,
+.qw-pago-fields {
+    margin-top: 0.5rem;
+}
+.qw-modalidad-fields:empty,
+.qw-pago-fields:empty {
+    display: none;
+}
+.qw-helper-info {
+    background: rgba(0, 0, 82, 0.04);
+    border-left: 3px solid var(--qhatu-red);
+    padding: 0.55rem 0.85rem;
+    border-radius: 4px;
+}
+
+/* ── Payment cards (P4) ─────────────────────────────────────────────────── */
+.qw-p4-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.qw-payment-methods-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.qw-payment-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+.qw-payment-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 1rem 0.55rem;
+    background: var(--qhatu-white);
+    border: 1.5px solid var(--qhatu-border);
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    transition: border-color 0.2s ease-out, background 0.2s ease-out,
+                box-shadow 0.2s ease-out;
+}
+.qw-payment-card:hover {
+    border-color: var(--qhatu-red-dark);
+}
+.qw-payment-card:focus-visible {
+    outline: 2px solid var(--qhatu-red);
+    outline-offset: 2px;
+}
+.qw-payment-card.qw-checked {
+    border: 2px solid var(--qhatu-red);
+    background: var(--qhatu-red-soft);
+    padding: calc(1rem - 0.5px) calc(0.55rem - 0.5px);
+    box-shadow: 0 4px 12px rgba(200, 52, 30, 0.16);
+}
+.qw-payment-card-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 1;
+    background: var(--qhatu-paper);
+}
+.qw-payment-card-icon-letter {
+    color: var(--qhatu-white);
+    font-weight: 700;
+    font-size: 15px;
+}
+.qw-icon-yape { background: var(--color-yape); }
+.qw-icon-plin { background: var(--color-plin); }
+.qw-payment-card-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--qhatu-navy);
+    line-height: 1.2;
+}
+/* SVG check con stroke-dashoffset draw */
+.qw-payment-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 18px;
+    height: 18px;
+    color: var(--qhatu-red);
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+}
+.qw-payment-card.qw-checked .qw-payment-check {
+    opacity: 1;
+}
+.qw-payment-check path {
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    transition: stroke-dashoffset 0.25s ease-out;
+}
+.qw-payment-card.qw-checked .qw-payment-check path {
+    stroke-dashoffset: 0;
+}
+/* Bounce animation al toggle */
+.qw-payment-card.qw-just-toggled {
+    animation: qw-payment-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes qw-payment-bounce {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+/* ── Payment forms (acordeón stack debajo de las cards) ────────────────── */
+.qw-payment-forms {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.qw-payment-forms:empty { display: none; }
+.qw-payment-form-wrapper {
+    overflow: hidden;
+}
+.qw-payment-form {
+    background: var(--qhatu-paper);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.qw-payment-form-title {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--qhatu-navy);
+    margin-bottom: 0.1rem;
+}
+
+/* ── Radio / Check list options (cardForm "como", cashForm "momentos", comprobante) ── */
+.qw-radio-list,
+.qw-check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.qw-radio-list-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.qw-radio-option,
+.qw-check-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    background: var(--qhatu-white);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--qhatu-navy);
+    transition: border-color 0.15s ease-out, background 0.15s ease-out;
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 140px;
+}
+.qw-radio-option:hover,
+.qw-check-option:hover {
+    border-color: var(--qhatu-red-dark);
+    background: rgba(245, 230, 226, 0.5);
+}
+.qw-radio-option:focus-within,
+.qw-check-option:focus-within {
+    outline: 2px solid var(--qhatu-red);
+    outline-offset: 2px;
+}
+.qw-radio-option input,
+.qw-check-option input {
+    margin: 2px 0 0;
+    accent-color: var(--qhatu-red);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Reset de radios/checkboxes nativos dentro del wizard.
+   `dashboard/css/styles.css:1596` aplica `width:100%; padding:1.25rem 1.5rem;
+   border:1px solid ...; border-radius:18px` a TODO <input>, lo que convierte
+   los radios/checks en cajas gigantes y rompe el layout del comprobante,
+   "modos de pago" y otros toggles del wizard. Acotamos el reset al wizard
+   para no afectar al resto del dashboard. */
+.qhatu-wizard input[type="radio"],
+.qhatu-wizard input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+}
+.qw-radio-option:has(input:checked),
+.qw-check-option:has(input:checked) {
+    background: var(--qhatu-red-soft);
+    border-color: var(--qhatu-red);
+}
+
+/* Comprobante section: separador visual del bloque anterior */
+.qw-comprobante-section {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--qhatu-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .qw-payment-cards-grid { grid-template-columns: repeat(2, 1fr); }
+    .qw-radio-list-horizontal { flex-direction: column; }
+    .qw-radio-option,
+    .qw-check-option { flex: 1 1 100%; }
+}
+
+/* ── P5: Modo de interacción ─────────────────────────────────────────────── */
+.qw-p5-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Disclaimer callout amarillo. NO es error — es info importante que el
+   usuario debe leer. Tono más cálido que .qw-coverage-warning. */
+.qw-p5-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    background: rgba(217, 119, 6, 0.10);
+    border: 1px solid rgba(217, 119, 6, 0.30);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--qhatu-navy);
+}
+.qw-p5-disclaimer-icon {
+    font-size: 16px;
+    line-height: 1.5;
+    flex-shrink: 0;
+}
+.qw-p5-disclaimer strong { font-weight: 600; color: var(--qhatu-warning); }
+.qw-p5-disclaimer em     { font-style: italic; font-weight: 500; }
+
+/* Modo cards — 2 lado a lado, compactas y centradas en la pantalla.
+   max-width acota el grid para que las cards no se "estiren" demasiado
+   en viewports anchos; margin auto las centra horizontalmente.
+   `minmax(0, 1fr)` (en vez de `1fr`) impide que el contenido con
+   `min-width:auto` infle las columnas y rompa el 50/50. */
+.qw-modo-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: stretch;
+    max-width: 720px;
+    margin: 0 auto;
+}
+.qw-modo-card {
+    /* Reset button + reaplicar estilo de card.
+       Las propiedades align-items / justify-content / white-space /
+       min-height / min-width están ACÁ explícitas porque
+       `dashboard/css/shadcn-buttons.css` aplica al selector base `button`:
+       `display:inline-flex; align-items:center; justify-content:center;
+       white-space:nowrap; min-height:38px`. Sin estos overrides, la card
+       centra verticalmente el chat preview, no permite wrap de la
+       descripción larga y se infla a "ancho de texto en una línea" —
+       rompiendo la grid de 2 columnas. */
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    white-space: normal;
+    min-height: 0;
+    min-width: 0;
+    gap: 0.55rem;
+    padding: 0.75rem 0.9rem;
+    background: var(--qhatu-white);
+    border: 1.5px solid var(--qhatu-border);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    line-height: 1.4;
+    transition: border-color 0.2s ease-out, background 0.2s ease-out,
+                box-shadow 0.2s ease-out;
+}
+.qw-modo-card:hover { border-color: var(--qhatu-red-dark); }
+.qw-modo-card:focus-visible {
+    outline: 2px solid var(--qhatu-red);
+    outline-offset: 2px;
+}
+.qw-modo-card-selected {
+    border: 2px solid var(--qhatu-red);
+    background: var(--qhatu-red-soft);
+    padding: calc(0.75rem - 0.5px) calc(0.9rem - 0.5px);
+    box-shadow: 0 6px 18px rgba(200, 52, 30, 0.16);
+}
+.qw-modo-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+.qw-modo-card-label {
+    font-family: var(--qw-font-serif);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--qhatu-navy);
+}
+.qw-modo-card-badge {
+    background: var(--qhatu-red);
+    color: var(--qhatu-white);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.qw-modo-card-desc {
+    margin: 0;
+    font-size: 12px;
+    color: var(--qhatu-gray);
+    line-height: 1.4;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+/* Chat preview — estilo WhatsApp con bg sutil tipo "papel arrugado".
+   Compacto: bubbles más chicos para que la card no crezca de más al
+   mostrar el preview embebido. */
+.qw-chat-preview {
+    background: #ECE5DD;
+    /* Patrón sutil de fondo WhatsApp (data-uri SVG mínimo) */
+    background-image:
+        radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+        radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size: 12px 12px;
+    background-position: 0 0, 6px 6px;
+    border-radius: 10px;
+    padding: 0.55rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-height: 220px;
+}
+.qw-chat-bubble {
+    padding: 6px 9px;
+    font-size: 12px;
+    line-height: 1.4;
+    max-width: 90%;
+    min-height: 1.4em;
+    /* CRÍTICO: pre-wrap honra \n de los mensajes (listas numeradas) y
+       preserva espacios múltiples. pre-line también honraría \n pero
+       colapsa espacios consecutivos. */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    color: var(--qhatu-navy);
+}
+.qw-chat-bubble-bot {
+    background: var(--qhatu-white);
+    align-self: flex-start;
+    border-radius: 0 12px 12px 12px;
+    box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.12);
+}
+.qw-chat-bubble-client {
+    background: #DCF8C6;
+    align-self: flex-end;
+    border-radius: 12px 0 12px 12px;
+    box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.12);
+}
+/* Bubbles vacíos mantienen min-height para no colapsar antes del typewriter */
+.qw-chat-bubble:empty {
+    min-height: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+/* Tono chips — 3 chips horizontales, solo label (los ejemplos viven en el
+   chat preview de arriba, que se actualiza al seleccionar tono). */
+.qw-tono-list {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.qw-tono-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    background: var(--qhatu-white);
+    border: 1.5px solid var(--qhatu-border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.15s ease-out, background 0.15s ease-out;
+}
+.qw-tono-card:hover {
+    border-color: var(--qhatu-red-dark);
+    background: rgba(245, 230, 226, 0.4);
+}
+.qw-tono-card:focus-within {
+    outline: 2px solid var(--qhatu-red);
+    outline-offset: 2px;
+}
+.qw-tono-card-selected {
+    border: 2px solid var(--qhatu-red);
+    background: var(--qhatu-red-soft);
+    padding: calc(0.5rem - 0.5px) calc(0.9rem - 0.5px);
+}
+.qw-tono-card input {
+    margin: 0;
+    accent-color: var(--qhatu-red);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.qw-tono-card-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--qhatu-navy);
+}
+
+/* Breakpoint más estrecho: solo colapsamos a columna en pantallas chicas
+   reales (móvil). En tablet/desktop angosto mantenemos 2 columnas. */
+@media (max-width: 520px) {
+    .qw-modo-grid { grid-template-columns: 1fr; max-width: none; }
+    .qw-chat-preview { min-height: 140px; }
+}
+
+/* ── P6: Cierre / Activación ────────────────────────────────────────────── */
+.qw-scene-closing {
+    align-items: center;
+}
+
+/* Willy pose victoria: spring translateY + scale. TODO: requiere SVG por
+   partes para una pose real con brazos arriba. Por ahora el PNG sentado
+   se "celebra" mediante transform. */
+.qw-willy.qw-willy-victory {
+    animation: qw-willy-victory 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes qw-willy-victory {
+    0%   { transform: translateY(0)     scale(1); }
+    35%  { transform: translateY(-22px) scale(1.06); }
+    65%  { transform: translateY(-12px) scale(1.04); }
+    100% { transform: translateY(0)     scale(1); }
+}
+
+/* Resumen P6 — bloques con check + lista detallada (más legible y largo) */
+.qw-p6-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    width: 100%;
+    max-width: min(720px, 100%);
+    margin: 0 auto;
+    box-sizing: border-box;
+    background: var(--qhatu-white, #ffffff);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 14px;
+    padding: 1.35rem 1.5rem 1.5rem;
+    box-shadow: 0 8px 28px rgba(26, 26, 46, 0.06);
+}
+.qw-summary-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    animation: qw-summary-item-in 0.35s ease-out backwards;
+    animation-delay: calc(0.15s + var(--summary-i, 0) * 0.1s);
+}
+.qw-summary-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    color: var(--qhatu-navy);
+}
+.qw-summary-heading-text {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    padding-top: 0.12rem;
+}
+.qw-summary-detail-list {
+    list-style: none;
+    margin: 0 0 0 1.85rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.qw-summary-detail-li {
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--qhatu-navy);
+    position: relative;
+    padding-left: 0.65rem;
+}
+.qw-summary-detail-li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--qhatu-gray);
+    font-weight: 700;
+}
+.qw-summary-detail-li--sub {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--qhatu-gray);
+    margin-top: 0.35rem;
+    padding-top: 0.35rem;
+    border-top: 1px dashed var(--qhatu-border);
+}
+.qw-summary-detail-li--sub:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+.qw-summary-detail-li--sub::before {
+    content: none;
+}
+
+/* SVG check — dibujo sincronizado con el bloque */
+.qw-check-svg {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    color: var(--qhatu-success);
+    margin-top: 0.1rem;
+}
+.qw-check-svg path {
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    animation: qw-check-draw 0.4s ease-out forwards;
+    animation-delay: calc(0.2s + var(--summary-i, 0) * 0.1s);
+}
+@keyframes qw-summary-item-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes qw-check-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+/* Botones de acción */
+.qw-p6-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+.qw-btn-lg {
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+/* Placeholder post-activación (cuando state.completed=true al entrar) */
+.qw-completed-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    gap: 0.75rem;
+    color: var(--qhatu-navy);
+    min-height: 60vh;
+}
+.qw-completed-placeholder h2 {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0;
+    color: var(--qhatu-navy);
+}
+.qw-completed-placeholder p {
+    font-size: 14px;
+    color: var(--qhatu-gray);
+    margin: 0;
+}
+
+/* Reduce motion: skip victory bounce + stagger anims, mantén contenido visible */
+@media (prefers-reduced-motion: reduce) {
+    .qw-willy.qw-willy-victory { animation: none !important; }
+    .qw-summary-block,
+    .qw-check-svg path {
+        animation: none !important;
+        opacity: 1;
+        stroke-dashoffset: 0;
+        transform: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .qw-p6-actions { flex-direction: column-reverse; align-items: stretch; }
+    .qw-p6-actions .qw-btn { width: 100%; }
+}
+
+/* ── Inline section errors (replace toasts en validaciones bloqueantes) ─── */
+.qw-section-error {
+    font-size: 13px;
+    color: var(--qhatu-error);
+    font-weight: 500;
+    min-height: 0;
+}
+.qw-section-error:empty { display: none; }
+
+@media (max-width: 768px) {
+    .qw-modalidad-grid { grid-template-columns: 1fr; }
+    .qw-pago-grid { grid-template-columns: 1fr; }
+    .qw-shipping-group-card-actions { gap: 0.35rem; }
+    .qw-shipping-group-empty-warning-actions { flex-direction: column; }
+    .qw-shipping-group-empty-warning-actions .qw-btn { width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .qw-scene-stacked { gap: 1rem; }
+    .qw-scene-stacked .qw-scene-head { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .qw-scene-stacked .qw-willy { width: 140px; height: 160px; }
+    .qw-radio-grid { grid-template-columns: 1fr; }
+    .qw-local-card-saved { flex-direction: column; align-items: stretch; }
+    .qw-local-card-actions { justify-content: flex-end; }
+}
+
+/* ── Tabs (P2: manual vs. upload) ───────────────────────────────────────── */
+.qw-tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--qhatu-border);
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+.qw-tab {
+    border: none;
+    background: transparent;
+    padding: 0.65rem 1rem;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--qhatu-gray);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; /* superpone con el border del contenedor */
+    transition: color 0.2s ease-out, border-color 0.2s ease-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.qw-tab:hover { color: var(--qhatu-navy); }
+.qw-tab:focus-visible {
+    outline: 2px solid var(--qhatu-red);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+.qw-tab[aria-selected="true"] {
+    color: var(--qhatu-red);
+    border-bottom-color: var(--qhatu-red);
+}
+.qw-tab-panel[hidden] { display: none; }
+
+/* ── Product card (P2) ──────────────────────────────────────────────────── */
+.qw-product-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.qw-product-card {
+    background: var(--qhatu-paper);
+    border: 1px solid var(--qhatu-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    /* Para que la collapse animation pueda animar height sin saltos */
+    overflow: hidden;
+}
+.qw-product-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: -0.25rem;
+}
+.qw-product-card-num {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--qhatu-navy);
+    letter-spacing: -0.01em;
+}
+.qw-product-delete {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--qhatu-gray);
+    transition: background 0.15s ease-out, color 0.15s ease-out, transform 0.15s ease-out;
+}
+.qw-product-delete:hover:not(:disabled) {
+    background: rgba(220, 38, 38, 0.08);
+    color: var(--qhatu-error);
+    transform: scale(1.08);
+}
+.qw-product-delete:focus-visible {
+    outline: 2px solid var(--qhatu-red);
+    outline-offset: 2px;
+}
+.qw-product-delete:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* Row de 2 columnas — precio + categoría lado a lado en desktop */
+.qw-product-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 0.75rem;
+}
+
+/* Botón "+ Agregar otro producto" — secundario con borde dashed para
+   diferenciarlo visualmente de los botones de acción regulares */
+.qw-btn-add {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-style: dashed;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+    white-space: normal;
+}
+
+/* Eliminar spinner del input type=number — UX más limpia */
+.qw-input[type="number"]::-webkit-inner-spin-button,
+.qw-input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.qw-input[type="number"] { -moz-appearance: textfield; }
+
+/* Animación de entrada de cards (al agregar producto). 300ms slide+fade.
+   El web animations API en JS asigna esta keyframe vía animate(). */
+@keyframes qw-card-enter {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+/* Stagger inicial — cuando renderizamos la lista hidratada de localStorage */
+.qw-product-card[data-initial] {
+    animation: qw-card-enter 0.3s ease-out backwards;
+}
+
+/* ── Foto del producto (opcional) ────────────────────────────────────────── */
+.qw-product-photo-field { margin-top: 0.3rem; }
+.qw-product-photo-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+.qw-product-photo-thumb {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: 1px dashed rgba(0, 0, 82, 0.18);
+    background-color: var(--qhatu-cream, #F5EFE3);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 0, 82, 0.4);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+.qw-product-photo-thumb:hover {
+    border-color: var(--qhatu-red, #C8341E);
+    color: var(--qhatu-red, #C8341E);
+}
+/* Drag highlight — toda la fila se ilumina cuando el usuario arrastra una
+   imagen encima del row (thumb + actions). */
+.qw-product-photo-row.is-dragover .qw-product-photo-thumb,
+.qw-product-photo-thumb.is-dragover {
+    border-color: var(--qhatu-red, #C8341E);
+    border-style: solid;
+    background-color: var(--qhatu-red-soft, #F5E6E2);
+    transform: scale(1.04);
+}
+.qw-product-photo-row {
+    border-radius: 12px;
+    padding: 0.1rem;
+    transition: background-color 0.15s ease;
+}
+.qw-product-photo-row.is-dragover {
+    background-color: rgba(200, 52, 30, 0.04);
+}
+/* Spinner sutil mientras sube: el thumb baja un poco de opacity. */
+.qw-product-photo-thumb.is-uploading {
+    opacity: 0.55;
+    cursor: progress;
+}
+.qw-product-photo-thumb-placeholder { line-height: 1; }
+.qw-product-photo-actions {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+.qw-product-photo-actions .qw-btn { flex-shrink: 0; }
+.qw-product-photo-hint {
+    flex-basis: 100%;
+    font-size: 0.72rem;
+    color: var(--qhatu-gray, #6B6B7D);
+    margin-top: 0.1rem;
+}
+
+/* ── Bloque Stock dentro de la card de producto (P2) ─────────────────────
+   Reemplaza la pregunta separada de stock — ahora el dueño decide en el
+   mismo formulario si el producto tiene stock limitado o ilimitado. */
+.qw-product-stock-field {
+    margin-top: 0.6rem;
+    padding: 0.85rem 0.95rem 0.7rem;
+    background: var(--qhatu-paper, #FBF6EC);
+    border: 1px solid var(--qhatu-border, rgba(20,42,82,0.08));
+    border-radius: 12px;
+}
+.qw-stock-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+.qw-stock-title {
+    font-family: var(--qw-font-serif, 'Cormorant Garamond', serif);
+    font-weight: 700; font-size: 1.05rem;
+    color: var(--qhatu-navy, #142a52);
+    display: inline-flex; align-items: center; gap: 0.45rem;
+}
+.qw-stock-opt-pill {
+    display: inline-block;
+    font-family: var(--qw-font-sans, 'Outfit', sans-serif);
+    font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(34, 197, 94, 0.16);
+    color: #15803D;
+}
+.qw-stock-sub {
+    font-size: 0.78rem;
+    color: rgba(20, 42, 82, 0.55);
+    margin-top: 0.18rem;
+}
+.qw-stock-row {
+    display: flex; align-items: center; gap: 0.65rem;
+}
+.qw-stock-input {
+    flex: 1;
+}
+.qw-stock-input:disabled {
+    background: rgba(20, 42, 82, 0.03);
+    color: rgba(20, 42, 82, 0.45);
+    cursor: not-allowed;
+}
+/* Toggle switch tipo iOS */
+.qw-stock-toggle {
+    position: relative;
+    width: 44px; height: 24px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: inline-block;
+}
+.qw-stock-toggle input[type="checkbox"] {
+    opacity: 0; width: 0; height: 0;
+    position: absolute;
+}
+.qw-stock-toggle-track {
+    display: block;
+    width: 44px; height: 24px;
+    background: rgba(20, 42, 82, 0.18);
+    border-radius: 999px;
+    transition: background 0.18s ease;
+    position: relative;
+}
+.qw-stock-toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.qw-stock-toggle input[type="checkbox"]:checked ~ .qw-stock-toggle-track {
+    background: #22C55E;
+}
+.qw-stock-toggle input[type="checkbox"]:checked ~ .qw-stock-toggle-track .qw-stock-toggle-thumb {
+    transform: translateX(20px);
+}
+.qw-stock-toggle input[type="checkbox"]:focus-visible ~ .qw-stock-toggle-track {
+    outline: 2px solid rgba(200, 149, 55, 0.55);
+    outline-offset: 2px;
+}
+.qw-stock-hint {
+    font-size: 0.72rem;
+    color: rgba(20, 42, 82, 0.55);
+    margin-top: 0.55rem;
+    line-height: 1.4;
+}
+
+/* ── Upload stub (P2) ───────────────────────────────────────────────────── */
+.qw-upload-stub {
+    background: var(--qhatu-paper);
+    border: 1.5px dashed var(--qhatu-border);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: var(--qhatu-gray);
+}
+.qw-upload-stub-title {
+    font-family: var(--qw-font-serif);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--qhatu-navy);
+    margin: 0 0 0.5rem;
+}
+.qw-upload-stub-text {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+}
+
+/* Responsive: en mobile el grid 2-col se apila */
+@media (max-width: 768px) {
+    .qw-right-wide { max-width: 100%; }
+    .qw-product-row { grid-template-columns: 1fr; }
+}
+
+/* ── Footer (navegación entre pasos) ────────────────────────────────────── */
+.qw-footer {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem 1.5rem;
+  gap: 0.75rem;
+  border-top: 1px solid var(--qhatu-border);
+  background: var(--qhatu-cream);
+}
+.qw-footer-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ── Toast (notificaciones efímeras del wizard) ─────────────────────────── */
+.qw-toast-container {
+    position: absolute;
+    top: 4.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+    max-width: 90%;
+}
+.qw-toast {
+    background: var(--qhatu-navy);
+    color: var(--qhatu-white);
+    padding: 0.65rem 1.1rem;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+    animation: qw-toast-in 0.2s ease-out backwards;
+}
+.qw-toast.qw-toast-leaving {
+    animation: qw-toast-out 0.2s ease-in forwards;
+}
+@keyframes qw-toast-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes qw-toast-out {
+    from { opacity: 1; transform: translateY(0);    }
+    to   { opacity: 0; transform: translateY(-8px); }
+}
+
+/* ── Modal (exit confirm + futuros uploads) ─────────────────────────────── */
+/* Por encima del modal de Tiendas (#store-willy-modal z-index 10060) y
+   popups del dashboard (~10100), para que Atrás/Saltar/exit sigan visibles. */
+.qw-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 10200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: qw-fade-in 0.2s ease-out;
+}
+.qw-modal {
+  background: #ffffff;
+  border: 1px solid rgba(26, 26, 46, 0.1);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: qw-bubble-in 0.25s ease-out;
+}
+.qw-modal-title {
+  font-family: var(--qw-font-serif, 'Georgia', serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--qhatu-navy, #1A1A2E);
+  margin: 0 0 0.5rem;
+}
+.qw-modal-text {
+  font-size: 15px;
+  color: var(--qhatu-gray, #6B6B7D);
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+.qw-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+@keyframes qw-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Settings box (modal "Editar configuración" abierto desde P6) ─────── */
+/* z-index: por encima del store-willy-modal (10001) y del wizard, alineado
+   con qw-modal-backdrop (10200). */
+.qw-settings-backdrop {
+  align-items: flex-start;
+  padding: 2.5rem 1rem;
+  overflow-y: auto;
+}
+.qw-settings-modal {
+  max-width: 640px;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 5rem);
+  overflow: hidden;
+}
+.qw-settings-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 1.75rem 1.1rem;
+  border-bottom: 1px solid rgba(26, 26, 46, 0.08);
+  background: var(--qhatu-cream, #F5EFE3);
+}
+.qw-settings-head .qw-modal-title {
+  margin: 0 0 0.3rem;
+}
+.qw-settings-subtitle {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--qhatu-gray, #6B6B7D);
+  line-height: 1.5;
+  max-width: 460px;
+}
+.qw-settings-close-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(26, 26, 46, 0.12);
+  background: #ffffff;
+  color: var(--qhatu-navy, #1A1A2E);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  font-family: inherit;
+  padding: 0;
+}
+.qw-settings-close-btn:hover {
+  background: var(--qhatu-red-soft, #F5E6E2);
+  border-color: var(--qhatu-red, #C8341E);
+  color: var(--qhatu-red, #C8341E);
+}
+.qw-settings-close-btn:active { transform: scale(0.94); }
+.qw-settings-close-btn:focus-visible {
+  outline: 2px solid var(--qhatu-red, #C8341E);
+  outline-offset: 2px;
+}
+.qw-settings-body {
+  padding: 1.25rem 1.75rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.qw-settings-section {
+  border: 1px solid rgba(26, 26, 46, 0.1);
+  border-radius: 12px;
+  padding: 0.95rem 1.05rem;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.qw-settings-section:hover {
+  border-color: rgba(200, 52, 30, 0.4);
+  box-shadow: 0 2px 10px rgba(200, 52, 30, 0.06);
+}
+.qw-settings-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+.qw-settings-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.qw-settings-section-title .qw-check-svg {
+  width: 18px;
+  height: 18px;
+  color: #1F9D55;
+  flex-shrink: 0;
+  animation: none;
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+.qw-settings-section-name {
+  font-family: var(--qw-font-serif, 'Georgia', serif);
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--qhatu-navy, #1A1A2E);
+  margin: 0;
+  line-height: 1.2;
+}
+.qw-settings-edit-btn {
+  flex-shrink: 0;
+  padding: 0.4rem 0.95rem;
+}
+.qw-settings-section-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 1.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+.qw-settings-detail-li {
+  position: relative;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--qhatu-navy, #1A1A2E);
+}
+.qw-settings-detail-li::before {
+  content: '•';
+  position: absolute;
+  left: -0.85rem;
+  color: var(--qhatu-red, #C8341E);
+  font-weight: 700;
+}
+.qw-settings-detail-li--sub {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--qhatu-gray, #6B6B7D);
+  margin-top: 0.35rem;
+}
+.qw-settings-detail-li--sub::before { content: ''; }
+.qw-settings-foot {
+  padding: 0.95rem 1.75rem 1.2rem;
+  border-top: 1px solid rgba(26, 26, 46, 0.08);
+  display: flex;
+  justify-content: flex-end;
+  background: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .qw-settings-backdrop { padding: 1rem 0.5rem; }
+  .qw-settings-modal { max-height: calc(100vh - 2rem); border-radius: 12px; }
+  .qw-settings-head { padding: 1.1rem 1.1rem 0.85rem; flex-wrap: wrap; }
+  .qw-settings-body { padding: 1rem 1.1rem; }
+  .qw-settings-foot { padding: 0.85rem 1.1rem 1rem; }
+  .qw-settings-section-head { flex-wrap: wrap; }
+  .qw-settings-edit-btn { width: 100%; }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .qw-willy,
+  .qw-willy-sway,
+  .qw-willy-breath,
+  .qw-willy::after,
+  .qw-bubble,
+  .qw-btn[data-stagger],
+  .qw-modal,
+  .qw-modal-backdrop,
+  .qw-settings-backdrop,
+  .qw-settings-modal,
+  .qw-progress-fill,
+  .qw-toast,
+  .qw-toast.qw-toast-leaving {
+    animation: none !important;
+    transition: opacity 0.1s linear !important;
+  }
+  .qw-willy { opacity: 1; }
+  .qw-bubble { opacity: 1; transform: none; }
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .qhatu-wizard { min-height: calc(100vh - 2rem); border-radius: 0; }
+  .qw-header { padding: 0.75rem 1rem 0.5rem; }
+  .qw-content { padding: 1rem; }
+  .qw-scene { flex-direction: column; gap: 1.25rem; text-align: center; }
+  .qw-willy { width: 180px; height: 220px; }
+  .qw-right { max-width: 100%; width: 100%; }
+  .qw-bubble { max-width: 100%; padding: 18px 22px; }
+  /* En mobile la bubble queda centrada, así que sobrescribimos el left-align
+     de P1 para que se vea consistente con el stack vertical. */
+  .qw-bubble-text-left { text-align: center; }
+  /* En mobile la cola apunta hacia arriba (Willy queda encima del bubble) */
+  .qw-bubble::before,
+  .qw-bubble::after {
+    top: -22px;
+    left: 50%;
+    margin-top: 0;
+  }
+  .qw-bubble::before {
+    margin-left: -16px;
+    border-width: 0 16px 22px 16px;
+    border-color: transparent transparent var(--qhatu-red-dark) transparent;
+  }
+  .qw-bubble::after {
+    margin-left: -12px;
+    margin-top: 4px;
+    border-width: 0 12px 18px 12px;
+    border-color: transparent transparent var(--qhatu-white) transparent;
+  }
+  .qw-bubble-text { font-size: 18px; }
+  .qw-footer { padding: 0.75rem 1rem 1rem; flex-direction: column; gap: 0.5rem; }
+  .qw-footer > *,
+  .qw-footer-right { width: 100%; }
+  .qw-footer-right { justify-content: space-between; }
+  .qw-btn { width: 100%; }
+}

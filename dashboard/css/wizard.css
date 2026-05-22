@@ -1,0 +1,1736 @@
+/* ==========================================
+   VENDEDOR AI CONFIG — 4-Tab Wizard (YaVendió! Style)
+   ========================================== */
+
+/* ─── Design Tokens ─── */
+:root {
+    --wiz-primary: #000052;
+    --wiz-primary-hover: #581C87;
+    --wiz-primary-light: rgba(107, 33, 168, 0.08);
+    --wiz-primary-glow: rgba(107, 33, 168, 0.15);
+    --wiz-bg: #FAF7F0;
+    --wiz-surface: #FFFFFF;
+    --wiz-surface-2: #FAF7F0;
+    --wiz-border: #F5EFE0;
+    --wiz-border-hover: #D1D5DB;
+    --wiz-text: #000052;
+    --wiz-text-dim: #000052;
+    --wiz-text-muted: rgba(0,0,51,0.40);
+    --wiz-success: #16A34A;
+    --wiz-danger: #DC2626;
+    --wiz-warning: #D97706;
+    --wiz-radius: 14px;
+    --wiz-radius-sm: 10px;
+    --wiz-radius-xs: 6px;
+    --wiz-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Fixed Header Bar ─── */
+.wiz-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--wiz-border);
+}
+
+.wiz-header-bar h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--wiz-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.wiz-btn-save {
+    padding: 0.65rem 2rem;
+    background: var(--wiz-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--wiz-radius-sm);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+    box-shadow: 0 4px 15px var(--wiz-primary-glow);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.wiz-btn-save:hover {
+    background: var(--wiz-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--wiz-primary-glow);
+}
+
+.wiz-btn-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ─── Tab Navigation ─── */
+.wiz-tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 2rem;
+    background: var(--wiz-surface);
+    border-radius: var(--wiz-radius);
+    padding: 0.3rem;
+    border: 1px solid var(--wiz-border);
+    overflow-x: auto;
+}
+
+.wiz-tab {
+    flex: 1;
+    padding: 0.8rem 1.25rem;
+    background: transparent;
+    color: var(--wiz-text-dim);
+    border: none;
+    border-radius: var(--wiz-radius-sm);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.wiz-tab:hover {
+    color: var(--wiz-text);
+    background: #FAF7F0;
+}
+
+.wiz-tab.active {
+    background: var(--wiz-primary);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px var(--wiz-primary-glow);
+}
+
+.wiz-tab .tab-icon {
+    font-size: 1.1rem;
+}
+
+/* ─── Tab Panels ─── */
+.wiz-tab-panel {
+    display: none;
+    animation: wizFadeSlide 0.35s ease-out;
+}
+
+.wiz-tab-panel.active {
+    display: block;
+}
+
+@keyframes wizFadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Section Cards ─── */
+.wiz-section {
+    background: var(--wiz-surface);
+    border: 1px solid var(--wiz-border);
+    border-radius: var(--wiz-radius);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    transition: border-color var(--wiz-transition);
+}
+
+.wiz-section:hover {
+    border-color: var(--wiz-border-hover);
+}
+
+.wiz-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.wiz-section-check {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--wiz-primary-light);
+    border: 2px solid rgba(124, 58, 237, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--wiz-primary);
+    flex-shrink: 0;
+    transition: all var(--wiz-transition);
+}
+
+.wiz-section-check.filled {
+    background: var(--wiz-primary);
+    border-color: var(--wiz-primary);
+    color: #FFFFFF;
+}
+
+.wiz-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--wiz-text);
+    margin: 0;
+}
+
+.wiz-section-desc {
+    font-size: 0.85rem;
+    color: var(--wiz-text-muted);
+    margin: -0.75rem 0 1.5rem 2.9rem;
+    line-height: 1.5;
+}
+
+/* ─── Form Elements ─── */
+.wiz-field {
+    margin-bottom: 1.25rem;
+}
+
+.wiz-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--wiz-text);
+    margin-bottom: 0.5rem;
+}
+
+.wiz-label .required {
+    color: var(--wiz-danger);
+    margin-left: 2px;
+}
+
+.wiz-label .char-counter {
+    float: right;
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--wiz-text-muted);
+}
+
+.wiz-hint {
+    font-size: 0.78rem;
+    color: var(--wiz-text-muted);
+    margin-top: 0.35rem;
+    line-height: 1.4;
+}
+
+.wiz-input,
+.wiz-textarea,
+.wiz-select {
+    width: 100%;
+    background: var(--wiz-surface-2);
+    border: 1.5px solid var(--wiz-border);
+    border-radius: var(--wiz-radius-sm);
+    padding: 0.75rem 1rem;
+    color: var(--wiz-text);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all var(--wiz-transition);
+    box-sizing: border-box;
+}
+
+.wiz-input:focus,
+.wiz-textarea:focus,
+.wiz-select:focus {
+    outline: none;
+    border-color: var(--wiz-primary);
+    box-shadow: 0 0 0 3px var(--wiz-primary-light);
+    background: var(--wiz-surface);
+    color: var(--wiz-text);
+}
+
+.wiz-input::placeholder,
+.wiz-textarea::placeholder {
+    color: var(--wiz-text-muted);
+}
+
+.wiz-textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+.wiz-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+/* ─── Gender Buttons ─── */
+.wiz-btn-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.wiz-btn-option {
+    padding: 0.6rem 1.25rem;
+    background: var(--wiz-surface-2);
+    border: 1.5px solid var(--wiz-border);
+    border-radius: var(--wiz-radius-sm);
+    color: var(--wiz-text-dim);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+}
+
+.wiz-btn-option:hover {
+    border-color: var(--wiz-border-hover);
+    color: var(--wiz-text);
+    background: #FAF7F0;
+}
+
+.wiz-btn-option.active {
+    background: var(--wiz-primary-light);
+    border-color: var(--wiz-primary);
+    color: var(--wiz-primary);
+    font-weight: 600;
+}
+
+/* ─── iOS-Style Toggle Switch ─── */
+.wiz-toggle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+}
+
+.wiz-toggle-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--wiz-text);
+}
+
+.wiz-toggle {
+    position: relative;
+    width: 48px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.wiz-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.wiz-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #F5EFE0;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #F5EFE0;
+}
+
+.wiz-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.wiz-toggle input:checked+.wiz-toggle-slider {
+    background: var(--wiz-primary);
+    border-color: var(--wiz-primary);
+}
+
+.wiz-toggle input:checked+.wiz-toggle-slider::before {
+    transform: translateX(20px);
+}
+
+/* ─── Tag Input ─── */
+.wiz-tag-input-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--wiz-surface-2);
+    border: 1.5px solid var(--wiz-border);
+    border-radius: var(--wiz-radius-sm);
+    min-height: 44px;
+    align-items: center;
+    cursor: text;
+    transition: all var(--wiz-transition);
+}
+
+.wiz-tag-input-wrap:focus-within {
+    border-color: var(--wiz-primary);
+    box-shadow: 0 0 0 3px var(--wiz-primary-light);
+}
+
+.wiz-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    background: var(--wiz-primary-light);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--wiz-primary);
+    animation: wizTagPop 0.2s ease-out;
+}
+
+@keyframes wizTagPop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.wiz-tag-remove {
+    background: none;
+    border: none;
+    color: var(--wiz-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+
+.wiz-tag-remove:hover {
+    opacity: 1;
+}
+
+.wiz-tag-field {
+    border: none;
+    background: transparent;
+    color: var(--wiz-text);
+    font-size: 0.9rem;
+    outline: none;
+    min-width: 120px;
+    flex: 1;
+    padding: 0.2rem 0;
+}
+
+.wiz-tag-field::placeholder {
+    color: var(--wiz-text-muted);
+}
+
+/* ─── 5-Point Slider ─── */
+.wiz-slider-group {
+    padding: 1rem 0;
+}
+
+.wiz-slider-track {
+    position: relative;
+    margin: 0.5rem 0 0;
+}
+
+.wiz-slider-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(to right,
+            var(--wiz-primary) 0%,
+            var(--wiz-primary) var(--slider-progress, 50%),
+            #F0F0F2 var(--slider-progress, 50%),
+            #F0F0F2 100%);
+    border-radius: 100px;
+    outline: none;
+    cursor: pointer;
+    border: none;
+}
+
+.wiz-slider-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--wiz-primary);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+    transition: transform 0.15s ease;
+}
+
+.wiz-slider-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.wiz-slider-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--wiz-primary);
+    cursor: pointer;
+}
+
+.wiz-slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+}
+
+.wiz-slider-labels span {
+    font-size: 0.72rem;
+    color: var(--wiz-text-muted);
+    text-align: center;
+    flex: 1;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.wiz-slider-labels span.active {
+    color: var(--wiz-primary);
+    font-weight: 700;
+}
+
+/* ─── Dropzone ─── */
+.wiz-dropzone {
+    border: 2px dashed #F5EFE0;
+    border-radius: var(--wiz-radius);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+    background: #F5EFE0;
+}
+
+.wiz-dropzone:hover,
+.wiz-dropzone.dragover {
+    border-color: var(--wiz-primary);
+    background: var(--wiz-primary-light);
+}
+
+.wiz-dropzone-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.4;
+}
+
+.wiz-dropzone-text {
+    font-size: 0.9rem;
+    color: var(--wiz-text-dim);
+    font-weight: 500;
+}
+
+.wiz-dropzone-hint {
+    font-size: 0.78rem;
+    color: var(--wiz-text-muted);
+    margin-top: 0.3rem;
+}
+
+.wiz-file-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.wiz-file-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: var(--wiz-radius-xs);
+    font-size: 0.8rem;
+    color: var(--wiz-success);
+}
+
+.wiz-file-preview .remove-file {
+    background: none;
+    border: none;
+    color: var(--wiz-danger);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+    opacity: 0.7;
+}
+
+.wiz-file-preview .remove-file:hover {
+    opacity: 1;
+}
+
+/* ─── Accordion ─── */
+.wiz-accordion-item {
+    border: 1px solid var(--wiz-border);
+    border-radius: var(--wiz-radius-sm);
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.wiz-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.15rem;
+    background: var(--wiz-surface-2);
+    cursor: pointer;
+    transition: background var(--wiz-transition);
+    user-select: none;
+}
+
+.wiz-accordion-header:hover {
+    background: #FAF7F0;
+}
+
+.wiz-accordion-header .acc-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--wiz-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.wiz-accordion-arrow {
+    font-size: 0.7rem;
+    color: var(--wiz-text-muted);
+    transition: transform 0.3s ease;
+}
+
+.wiz-accordion-item.open .wiz-accordion-arrow {
+    transform: rotate(180deg);
+}
+
+.wiz-accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+}
+
+.wiz-accordion-item.open .wiz-accordion-body {
+    max-height: 2000px;
+}
+
+.wiz-accordion-inner {
+    padding: 1.25rem;
+    border-top: 1px solid var(--wiz-border);
+}
+
+/* ─── KB Filter Chips ─── */
+.wiz-filter-chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.wiz-filter-chip {
+    padding: 0.45rem 1rem;
+    background: var(--wiz-surface-2);
+    border: 1px solid var(--wiz-border);
+    border-radius: 100px;
+    color: var(--wiz-text-dim);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+}
+
+.wiz-filter-chip:hover {
+    background: #FAF7F0;
+    border-color: var(--wiz-border-hover);
+}
+
+.wiz-filter-chip.active {
+    background: var(--wiz-primary-light);
+    border-color: var(--wiz-primary);
+    color: var(--wiz-primary);
+    font-weight: 600;
+}
+
+/* ─── KB Topic Cards ─── */
+.wiz-kb-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.wiz-kb-empty-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+    margin-bottom: 0.75rem;
+}
+
+.wiz-kb-empty-text {
+    font-size: 1rem;
+    color: var(--wiz-text-muted);
+    font-weight: 500;
+}
+
+.wiz-kb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.wiz-kb-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--wiz-surface-2);
+    border: 1px solid var(--wiz-border);
+    border-radius: var(--wiz-radius-sm);
+    transition: all var(--wiz-transition);
+    animation: wizFadeSlide 0.25s ease-out;
+}
+
+.wiz-kb-card:hover {
+    border-color: var(--wiz-border-hover);
+}
+
+.wiz-kb-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.wiz-kb-card-topic {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--wiz-text);
+    margin-bottom: 0.25rem;
+}
+
+.wiz-kb-card-desc {
+    font-size: 0.82rem;
+    color: var(--wiz-text-dim);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.wiz-kb-card-cat {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    background: var(--wiz-primary-light);
+    color: var(--wiz-primary);
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.wiz-kb-card-actions {
+    display: flex;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+
+.wiz-kb-card-actions button {
+    background: none;
+    border: none;
+    color: var(--wiz-text-muted);
+    cursor: pointer;
+    padding: 0.3rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+
+.wiz-kb-card-actions button:hover {
+    background: #FAF7F0;
+    color: var(--wiz-text);
+}
+
+.wiz-kb-card-actions button.delete-btn:hover {
+    color: var(--wiz-danger);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* ─── Add Buttons ─── */
+.wiz-btn-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.85rem;
+    background: transparent;
+    border: 2px dashed rgba(124, 58, 237, 0.25);
+    border-radius: var(--wiz-radius-sm);
+    color: var(--wiz-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+}
+
+.wiz-btn-add:hover {
+    background: var(--wiz-primary-light);
+    border-color: var(--wiz-primary);
+}
+
+.wiz-btn-add-sm {
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.82rem;
+}
+
+/* ─── Modal ─── */
+.wiz-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    animation: wizModalFadeIn 0.2s ease;
+}
+
+.wiz-modal-overlay.open {
+    display: flex;
+}
+
+@keyframes wizModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.wiz-modal {
+    background: var(--wiz-surface);
+    border: 1px solid var(--wiz-border);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 2rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+    animation: wizModalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes wizModalSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wiz-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.wiz-modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--wiz-text);
+}
+
+.wiz-modal-close {
+    background: none;
+    border: none;
+    /* Antes color: var(--wiz-text-muted) (rgba 0.40) — quedaba casi
+       invisible sobre el fondo crema del modal y el ✕ se veía "en blanco".
+       Subimos a una variante más sólida con peso 600 para que el glifo
+       siempre se distinga. */
+    color: rgba(0, 0, 51, 0.78);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+
+.wiz-modal-close:hover {
+    background: #FAF7F0;
+    color: var(--wiz-text);
+}
+
+.wiz-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--wiz-border);
+}
+
+.wiz-btn-cancel {
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    border: 1px solid var(--wiz-border);
+    border-radius: var(--wiz-radius-sm);
+    color: var(--wiz-text-dim);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+}
+
+.wiz-btn-cancel:hover {
+    background: #FAF7F0;
+    color: var(--wiz-text);
+}
+
+.wiz-btn-primary {
+    padding: 0.6rem 1.5rem;
+    background: var(--wiz-primary);
+    border: none;
+    border-radius: var(--wiz-radius-sm);
+    color: #FFFFFF;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--wiz-transition);
+    box-shadow: 0 4px 12px var(--wiz-primary-glow);
+}
+
+.wiz-btn-primary:hover {
+    background: var(--wiz-primary-hover);
+    transform: translateY(-1px);
+}
+
+/* ─── Delivery Zone Card ─── */
+.wiz-zone-card {
+    background: var(--wiz-surface-2);
+    border: 1px solid var(--wiz-border);
+    border-radius: var(--wiz-radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    animation: wizFadeSlide 0.25s ease-out;
+}
+
+.wiz-zone-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.wiz-zone-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--wiz-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.wiz-zone-remove {
+    background: none;
+    border: none;
+    color: var(--wiz-text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+
+.wiz-zone-remove:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--wiz-danger);
+}
+
+/* ─── Shipping Options Table ─── */
+.wiz-shipping-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+}
+
+.wiz-shipping-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--wiz-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--wiz-border);
+}
+
+.wiz-shipping-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--wiz-border);
+    vertical-align: middle;
+}
+
+.wiz-shipping-table td input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--wiz-radius-xs);
+    padding: 0.4rem 0.6rem;
+    color: var(--wiz-text);
+    font-size: 0.88rem;
+    transition: all var(--wiz-transition);
+}
+
+.wiz-shipping-table td input:focus {
+    border-color: var(--wiz-primary);
+    background: var(--wiz-surface);
+    outline: none;
+}
+
+.wiz-shipping-table td .remove-row {
+    background: none;
+    border: none;
+    color: var(--wiz-text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.wiz-shipping-table td .remove-row:hover {
+    color: var(--wiz-danger);
+}
+
+/* ─── Payment Method Card ─── */
+.wiz-pay-card {
+    background: var(--wiz-surface-2);
+    border: 1px solid var(--wiz-border);
+    border-radius: var(--wiz-radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.75rem;
+    animation: wizFadeSlide 0.25s ease-out;
+}
+
+.wiz-pay-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.wiz-pay-card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.wiz-pay-card-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--wiz-text);
+}
+
+/* ─── Two-Column Grid ─── */
+.wiz-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .wiz-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .wiz-tabs {
+        gap: 0.15rem;
+    }
+
+    .wiz-tab {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* ─── Config Link ─── */
+.wiz-config-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--wiz-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 0.5rem;
+}
+
+.wiz-config-link:hover {
+    opacity: 0.8;
+}
+
+/* ─── Emoji Palette ─── */
+.wiz-emoji-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    background: var(--wiz-surface-2);
+    border: 1.5px solid var(--wiz-border);
+    border-radius: var(--wiz-radius-sm);
+    margin-top: 0.5rem;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.wiz-emoji-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: transparent;
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.wiz-emoji-btn:hover {
+    background: #FAF7F0;
+}
+
+.wiz-emoji-btn.selected {
+    background: var(--wiz-primary-light);
+    border-color: var(--wiz-primary);
+}
+
+/* ─── Tag counter ─── */
+.wiz-tag-counter {
+    font-size: 0.75rem;
+    color: var(--wiz-text-muted);
+    text-align: right;
+    margin-top: 0.3rem;
+}
+
+/* ─── Payment images grid ─── */
+.wiz-pay-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.wiz-pay-img-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--wiz-radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--wiz-border);
+}
+
+.wiz-pay-img-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wiz-pay-img-preview .remove-img {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.08);
+    color: #000052;
+    border: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.wiz-pay-img-preview:hover .remove-img {
+    opacity: 1;
+}
+
+/* ─── Inline row helpers ─── */
+.wiz-inline-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Override old accent in variables */
+.wiz-tf-btn-next,
+.wiz-tf-btn-final {
+    background: var(--wiz-primary) !important;
+    box-shadow: 0 4px 12px var(--wiz-primary-glow) !important;
+}
+
+.wiz-tf-btn-next:hover,
+.wiz-tf-btn-final:hover {
+    background: var(--wiz-primary-hover) !important;
+}
+
+/* ============================================================
+   RESPONSIVE — Wizard CSS (Mobile)
+   ============================================================ */
+
+/* ─── ≤ 900px — Tablet ─── */
+@media (max-width: 900px) {
+    /* Tabs: horizontal scroll */
+    .wiz-tabs {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex-wrap: nowrap !important;
+    }
+    .wiz-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .wiz-tab {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+        min-height: 44px !important;
+    }
+
+    /* Sections: reduce padding */
+    .wiz-section {
+        padding: 1.25rem !important;
+    }
+    .wiz-section-desc {
+        margin-left: 0 !important;
+    }
+
+    /* Modal: almost full screen */
+    .wiz-modal-overlay {
+        padding: 0.5rem !important;
+    }
+    .wiz-modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 95vh !important;
+        border-radius: 16px !important;
+    }
+
+    /* Header bar: wrap */
+    .wiz-header-bar {
+        flex-wrap: wrap !important;
+        gap: 0.75rem !important;
+    }
+    .wiz-btn-save {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* Grid 2: single column */
+    .wiz-grid-2 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Shipping table: scroll */
+    .wiz-shipping-table {
+        display: block !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap !important;
+    }
+
+    /* Zone card: reduce padding */
+    .wiz-zone-card {
+        padding: 1rem !important;
+    }
+
+    /* Pay card: reduce padding */
+    .wiz-pay-card {
+        padding: 1rem !important;
+    }
+
+    /* Inline row: wrap */
+    .wiz-inline-row {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+}
+
+/* ─── ≤ 640px — Phone Portrait ─── */
+@media (max-width: 640px) {
+    /* Tabs: even more compact */
+    .wiz-tabs {
+        padding: 0.2rem !important;
+        gap: 0.1rem !important;
+    }
+    .wiz-tab {
+        padding: 0.55rem 0.7rem !important;
+        font-size: 0.78rem !important;
+    }
+    .wiz-tab .tab-icon {
+        font-size: 1rem !important;
+    }
+
+    /* Sections: compact */
+    .wiz-section {
+        padding: 1rem !important;
+        border-radius: 12px !important;
+    }
+    .wiz-section-header {
+        gap: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    .wiz-section-title {
+        font-size: 0.95rem !important;
+    }
+
+    /* Form elements: 16px to prevent iOS zoom */
+    .wiz-input,
+    .wiz-textarea,
+    .wiz-select {
+        font-size: 16px !important;
+        min-height: 44px !important;
+        padding: 0.7rem 0.85rem !important;
+    }
+
+    /* Header bar: fully stacked */
+    .wiz-header-bar h2 {
+        font-size: 1.2rem !important;
+    }
+
+    /* Dropzone: compact */
+    .wiz-dropzone {
+        padding: 1.5rem 1rem !important;
+    }
+    .wiz-dropzone-icon {
+        font-size: 2rem !important;
+    }
+    .wiz-dropzone-text {
+        font-size: 0.85rem !important;
+    }
+
+    /* KB cards: compact */
+    .wiz-kb-card {
+        padding: 0.85rem 1rem !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Tag input: touch friendly */
+    .wiz-tag-input-wrap {
+        min-height: 44px !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+    .wiz-tag-field {
+        min-width: 80px !important;
+        font-size: 16px !important;
+    }
+
+    /* Slider labels: compact */
+    .wiz-slider-labels span {
+        font-size: 0.65rem !important;
+    }
+
+    /* Btn group: wrap */
+    .wiz-btn-group {
+        gap: 0.35rem !important;
+    }
+    .wiz-btn-option {
+        padding: 0.5rem 0.85rem !important;
+        font-size: 0.82rem !important;
+        min-height: 40px !important;
+    }
+
+    /* Modal: full screen */
+    .wiz-modal-overlay {
+        padding: 0 !important;
+    }
+    .wiz-modal {
+        border-radius: 0 !important;
+        max-height: 100vh !important;
+        padding: 1.25rem !important;
+    }
+    .wiz-modal-title {
+        font-size: 1.05rem !important;
+    }
+    .wiz-modal-footer {
+        flex-wrap: wrap !important;
+    }
+    .wiz-modal-footer button {
+        flex: 1 1 auto !important;
+        min-height: 44px !important;
+    }
+
+    /* Accordion: compact */
+    .wiz-accordion-header {
+        padding: 0.75rem 1rem !important;
+    }
+    .wiz-accordion-header .acc-title {
+        font-size: 0.85rem !important;
+    }
+    .wiz-accordion-inner {
+        padding: 1rem !important;
+    }
+
+    /* Filter chips: compact */
+    .wiz-filter-chips {
+        gap: 0.3rem !important;
+    }
+    .wiz-filter-chip {
+        padding: 0.4rem 0.85rem !important;
+        font-size: 0.78rem !important;
+        min-height: 36px !important;
+    }
+
+    /* Toggle: touch friendly */
+    .wiz-toggle-wrap {
+        min-height: 44px !important;
+    }
+
+    /* Add buttons */
+    .wiz-btn-add {
+        padding: 0.75rem !important;
+        min-height: 44px !important;
+    }
+
+    /* Emoji palette */
+    .wiz-emoji-palette {
+        max-height: 140px !important;
+    }
+    .wiz-emoji-btn {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    /* Pay images grid */
+    .wiz-pay-images-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+    }
+
+    /* Shipping table cells */
+    .wiz-shipping-table td input {
+        font-size: 16px !important;
+        min-height: 40px !important;
+    }
+
+    /* Zone card header */
+    .wiz-zone-card-header {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+
+    /* Pay card header */
+    .wiz-pay-card-header {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Modo de interacción — radio cards
+   Stack vertical de 3 cards seleccionables. Patrón "radio card":
+     · click en cualquier punto de la card la selecciona
+     · indicador de radio a la izquierda (8px dot dentro de un anillo)
+     · badge "Recomendado" inline al lado del título de la opción default
+     · autosave en cambio (sin botón guardar separado)
+   ═══════════════════════════════════════════════════════════════ */
+
+.im-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 0.75rem;
+}
+
+.im-card {
+    /* `<button>` global de shadcn-buttons.css fuerza display:inline-flex,
+       white-space:nowrap, justify-content:center, padding 0.5rem 1rem y
+       min-height:38px — TODOS rompen el layout vertical y el wrap del texto.
+       Usamos !important localizado para escapar de esa cascada sin afectar
+       el resto de los botones del app. */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    white-space: normal !important;          /* CRÍTICO: permite wrap del texto */
+    gap: 12px;
+    padding: 16px !important;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 82, 0.12);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    width: 100%;
+    min-height: 0 !important;                /* anula el min-height: 38px global */
+    overflow: hidden;                        /* clip para que ningún hijo se escape */
+    transition: border-color 0.18s ease, border-width 0.18s ease,
+                box-shadow 0.18s ease, background 0.18s ease;
+}
+.im-card:hover {
+    border-color: rgba(0, 0, 82, 0.25);
+}
+.im-card.is-selected {
+    border: 2px solid #000052;
+    /* margin negativo de 1px para compensar el border-width extra y mantener
+       alineación con las otras cards (evita salto de 1px). */
+    padding: 15px;
+}
+.im-card:focus-visible {
+    outline: 2px solid rgba(0, 0, 82, 0.30);
+    outline-offset: 2px;
+}
+
+/* Anillo radio + dot */
+.im-radio {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 0, 82, 0.30);
+    background: #FFFFFF;
+    margin-top: 2px;
+    position: relative;
+    transition: border-color 0.18s ease;
+}
+.im-card.is-selected .im-radio {
+    border-color: #000052;
+}
+.im-card.is-selected .im-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #000052;
+    transform: translate(-50%, -50%);
+}
+
+.im-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.im-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000052;
+    line-height: 1.3;
+}
+.im-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: rgba(229, 104, 60, 0.15);
+    color: #C8541F;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 999px;
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+    white-space: nowrap;              /* "Recomendado" siempre en una línea */
+}
+.im-desc {
+    font-size: 13px;
+    color: rgba(0, 0, 82, 0.60);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 100%;
+    overflow-wrap: break-word;        /* fuerza wrap incluso en strings largos sin espacios */
+    word-wrap: break-word;
+    white-space: normal;              /* explícito — anula el nowrap heredado del button global */
+}
+
+/* ─── Preview animado del modo de interacción ────────────────────────────
+   Mini-mockup que replica el look real de WhatsApp Interactive Buttons:
+   bubble del bot a la izquierda, botones full-width con divisores
+   horizontales debajo, y un input de texto cuando aplica. Cada item
+   entra con stagger fade-in al render y se replay al click en la card. */
+.im-preview {
+    width: 100%;
+    box-sizing: border-box;
+    background: #ECE5DD;                         /* fondo verde-cream típico de WhatsApp */
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(0,0,82,0.025) 0, transparent 1.5px),
+        radial-gradient(circle at 80% 60%, rgba(0,0,82,0.025) 0, transparent 1.5px),
+        radial-gradient(circle at 50% 80%, rgba(0,0,82,0.02) 0, transparent 1.5px);
+    background-size: 28px 28px;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    opacity: 0.65;
+    transition: opacity 0.2s ease;
+    margin: 4px 0;                                /* aire vertical antes/después */
+}
+.im-card.is-selected .im-preview { opacity: 1; }
+
+/* Bubbles de chat (bot + cliente) — replican look real de WhatsApp:
+     - Bot: blanco, alineado a la izq, esquina inferior izq cuadrada
+     - Cliente: verde claro #D9FDD3, alineado a la der, esquina inf der cuadrada */
+.im-wa-bubble {
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.35;
+    padding: 7px 11px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+    max-width: 82%;
+    word-wrap: break-word;
+    animation: imBubbleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.im-wa-bubble-bot {
+    background: #FFFFFF;
+    color: #111B21;
+    align-self: flex-start;
+    border-radius: 8px 8px 8px 2px;
+}
+/* Cuando el bubble del bot contiene opciones numeradas, dejamos que crezca
+   un poco más en ancho — un mensaje "pregunta + 3 opciones + cierre" no
+   cabe cómodo en 82%. */
+.im-wa-bubble-bot:has(.im-wa-options) { max-width: 92%; }
+.im-wa-bubble-user {
+    background: #D9FDD3;                          /* verde WhatsApp típico del usuario */
+    color: #111B21;
+    align-self: flex-end;
+    border-radius: 8px 8px 2px 8px;
+}
+@keyframes imBubbleIn {
+    from { opacity: 0; transform: translateY(-4px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Typing animation dentro de bubble del cliente — revela el texto char-by-char
+   usando WIDTH animation. El span crece desde width:0 hasta su ancho natural
+   en `steps()` discretos (=tipeo carácter por carácter). El cursor `|` viene
+   después en el flujo inline así que naturalmente avanza junto con el texto.
+   --type-len se setea inline para cada span (= cantidad de chars en el texto).
+   `both` fill-mode: durante la delay applies `from` (width:0, oculto), tras
+   completar applies `to` (width:type-len, texto visible permanente). */
+.im-wa-typed {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: bottom;
+    width: 0;
+    /* Para 1-char: usar la clase modificadora .im-wa-typed-short que aplica
+       una transición rápida (250ms) en lugar del steps(32) lento. */
+    animation: imTypeReveal 2.4s steps(32, end) both;
+}
+.im-wa-typed-short {
+    /* Sin steps — un solo char no necesita typing efecto. Fade-in rápido
+       que llega a width:--type-len en 250ms. Evita que el "2" aparezca
+       cortado y crezca poquito a poco a lo largo de 2.4s. */
+    animation: imTypeReveal 0.25s ease-out both;
+}
+@keyframes imTypeReveal {
+    from { width: 0; }
+    to   { width: var(--type-len, 32ch); }
+}
+.im-wa-cursor {
+    color: #027EB5;
+    font-weight: 700;
+    margin-left: 1px;
+    /* Dos animaciones combinadas:
+         · imBlink — parpadeo infinito mientras el cliente "escribe"
+         · imCursorHide — al terminar el typing (delay = --cursor-hide-delay
+                          inline en el bubble padre) el cursor se desvanece
+                          y QUEDA oculto (forwards) — replica el envío real
+                          en WhatsApp donde el cursor desaparece al mandar. */
+    animation: imBlink 1s steps(2, jump-none) infinite,
+               imCursorHide 0.3s ease-out forwards;
+    animation-delay: 0s, var(--cursor-hide-delay, 999s);
+}
+@keyframes imBlink {
+    50% { opacity: 0; }
+}
+/* imCursorHide: además de opacity, animamos VISIBILITY — sin esto el imBlink
+   infinite seguía oscilando opacity y se volvía a ver el cursor. visibility
+   no es animada por imBlink, así que se queda hidden permanente (forwards). */
+@keyframes imCursorHide {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* ─── Opciones numeradas dentro del bubble del bot ──────────────────────
+   Esta es la simulación REAL de "Solo botones" en el sistema actual:
+   Baileys (WhatsApp Web personal) no permite botones interactivos
+   nativos — solo Cloud API. Por eso el bot envía un mensaje con la
+   pregunta + lista numerada + cierre, todo dentro del MISMO bubble
+   blanco. El cliente responde con el número o el texto.
+
+   Estructura visual:
+     "<pregunta>"
+        1. Opción A
+        2. Opción B
+     "<cierre con instrucción de respuesta>"
+
+   .im-wa-text  → primera línea (pregunta)
+   .im-wa-options → contenedor de items numerados
+   .im-wa-opt   → un item (línea con número + texto)
+   .im-wa-num   → el número en color secundario para destacar
+   .im-wa-hint  → cierre tipo "Responde con el número…" en gris suave */
+.im-wa-text {
+    font-size: 12.5px;
+    line-height: 1.35;
+    margin-bottom: 8px;
+}
+.im-wa-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 4px;
+    margin-bottom: 8px;
+}
+.im-wa-opt {
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: #111B21;
+    /* Stagger fade-in: cada opt entra ~0.15s después que el bubble */
+    animation: imOptIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.im-wa-opt:nth-child(1) { animation-delay: 0.35s; }
+.im-wa-opt:nth-child(2) { animation-delay: 0.55s; }
+.im-wa-opt:nth-child(3) { animation-delay: 0.75s; }
+.im-wa-opt:nth-child(4) { animation-delay: 0.95s; }
+.im-wa-num {
+    font-weight: 700;
+    color: #027EB5;                   /* azul WhatsApp para el número */
+    margin-right: 4px;
+    display: inline-block;
+    min-width: 14px;
+}
+.im-wa-hint {
+    font-size: 11.5px;
+    line-height: 1.3;
+    color: #667781;                   /* gris suave estilo "metadata" WA */
+    font-style: italic;
+    /* Aparece después de los items para enfatizar la secuencia: pregunta
+       → opciones → cierre */
+    animation: imOptIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.05s backwards;
+}
+@keyframes imOptIn {
+    from { opacity: 0; transform: translateY(2px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 767px) {
+    .im-card { padding: 14px !important; }
+    .im-desc { font-size: 12.5px; }
+    .im-preview { padding: 12px; }
+    .im-wa-bubble { font-size: 12px; padding: 6px 10px; }
+    .im-wa-text, .im-wa-opt { font-size: 11.5px; }
+    .im-wa-hint { font-size: 10.5px; }
+}

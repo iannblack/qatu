@@ -1,0 +1,33 @@
+# Kipu — docker-compose para producción (self-hosted)
+# La app usa Supabase como base de datos; no se requiere Mongo local.
+# Nginx se ejecuta FUERA de este compose (en el host) para que certbot pueda
+# gestionar el cert de Let's Encrypt de tukipu.com sin conflictos.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kipu-app
+    restart: unless-stopped
+    ports:
+      # Binding a 127.0.0.1 para que solo nginx (en el host) pueda alcanzarlo.
+      # nginx hace el TLS termination y proxy_pass → localhost:3009.
+      - "127.0.0.1:${DASHBOARD_PORT:-3009}:${DASHBOARD_PORT:-3009}"
+    env_file:
+      - .env
+    volumes:
+      # Sesiones de Baileys (WhatsApp) — persisten entre reinicios
+      - bot_sessions:/app/sessions
+      # Archivos subidos por usuarios (catálogos, imágenes)
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:${DASHBOARD_PORT:-3009}/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  bot_sessions:
+  uploads:

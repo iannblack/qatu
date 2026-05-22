@@ -1,0 +1,1219 @@
+/* ════════════════════════════════════════════════════════════════════════
+   SHADCN-INSPIRED BUTTON SYSTEM (Qhatu)
+   ────────────────────────────────────────────────────────────────────────
+   Reemplaza el look "Liquid Glass" gradiente/blur por un look shadcn:
+   sólido, plano, profesional. Mantiene los nombres de clases existentes
+   (.btn, .btn-primary, .lg-btn, .lg-btn--primary, etc.) para no tener
+   que tocar el JS — solo se sobrescribe el aspecto visual.
+
+   Filosofía:
+   - Colores sólidos, sin gradientes ni glassmorphism.
+   - Bordes y sombras sutiles.
+   - Transiciones cortas (180ms) y previsibles.
+   - Estados hover/active/focus/disabled bien diferenciados.
+   - Focus ring con offset (accesibilidad).
+   - Tipografía limpia, peso 500-600 según variante.
+   ════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Tokens de color (adaptados a la paleta navy de Qhatu) */
+    --shc-primary:           #000052;
+    --shc-primary-hover:     #1a1a6e;
+    --shc-primary-active:    #00003d;
+    --shc-primary-fg:        #FAF7F0;
+
+    --shc-secondary:         #F4F0E6;
+    --shc-secondary-hover:   #ECE6D5;
+    --shc-secondary-active:  #DFD9C5;
+    --shc-secondary-fg:      #000052;
+
+    --shc-destructive:       #DC2626;
+    --shc-destructive-hover: #B91C1C;
+    --shc-destructive-active:#991B1B;
+    --shc-destructive-fg:    #FFFFFF;
+
+    --shc-success:           #16A34A;
+    --shc-success-hover:     #15803D;
+    --shc-success-active:    #166534;
+    --shc-success-fg:        #FFFFFF;
+
+    --shc-warning:           #D97706;
+    --shc-warning-hover:     #B45309;
+    --shc-warning-fg:        #FFFFFF;
+
+    --shc-border:            rgba(0, 0, 51, 0.14);
+    --shc-border-strong:     rgba(0, 0, 51, 0.22);
+    --shc-input-bg:          #FFFFFF;
+    --shc-muted:             rgba(0, 0, 51, 0.55);
+    --shc-fg:                #000052;
+
+    --shc-ring:              rgba(0, 0, 82, 0.35);
+    --shc-ring-destructive:  rgba(220, 38, 38, 0.35);
+    --shc-radius:            8px;
+    --shc-radius-sm:         6px;
+    --shc-radius-lg:         10px;
+    --shc-radius-pill:       999px;
+
+    --shc-ease:              cubic-bezier(0.4, 0, 0.2, 1);
+    --shc-duration:          180ms;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   BASE — aplica a TODO <button> y enlaces de acción .btn / .lg-btn
+   ════════════════════════════════════════════════════════════════════════ */
+button,
+.btn,
+.lg-btn,
+input[type="button"],
+input[type="submit"] {
+    /* Box model */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    /* Tipografía */
+    font-family: inherit;
+    font-size: 0.875rem;       /* 14px — shadcn default */
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    text-decoration: none;
+    text-shadow: none;
+
+    /* Look */
+    border-radius: var(--shc-radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    /* Reset gradientes/blurs heredados de liquid-glass */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+
+    /* Transiciones suaves */
+    transition:
+        background-color var(--shc-duration) var(--shc-ease),
+        border-color var(--shc-duration) var(--shc-ease),
+        color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease),
+        transform var(--shc-duration) var(--shc-ease);
+}
+
+/* Eliminar pseudo-elementos decorativos del liquid-glass */
+.lg-btn::before,
+.lg-btn::after,
+.btn::before,
+.btn::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Padding default — sobrescrito por modificadores de tamaño abajo.
+   .qw-btn y .qw-modo-card excluidos: los botones del onboarding wizard
+   tienen su propio sizing en onboarding/wizard.css y no deben heredar
+   los valores de shadcn (causaba flash visual al cargar P0–P6, y rompía
+   la grid de "Formato de respuesta" forzando min-height:38px y
+   padding 0.5rem 1rem por encima del wizard). */
+button:not(.lg-btn--icon):not(.lg-btn--sm):not(.btn-sm):not(.btn-icon):not(.kipu-mindmap-zbtn):not(.notif-tab):not(.lg-btn--lg):not(.qw-btn):not(.qw-modo-card),
+.btn:not(.btn-sm):not(.btn-lg):not(.btn-icon),
+.lg-btn:not(.lg-btn--sm):not(.lg-btn--lg):not(.lg-btn--icon) {
+    min-height: 38px;
+    padding: 0.5rem 1rem;
+}
+
+/* Estados foco — accesible y visible */
+button:focus-visible,
+.btn:focus-visible,
+.lg-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FAF7F0, 0 0 0 4px var(--shc-ring);
+}
+
+/* Disabled */
+button:disabled,
+.btn:disabled,
+.lg-btn:disabled,
+button[aria-disabled="true"],
+.btn[aria-disabled="true"],
+.lg-btn[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+}
+
+/* Active state — todos los botones tienen un sutil "press" */
+button:not(:disabled):active,
+.btn:not(:disabled):active,
+.lg-btn:not(:disabled):active {
+    transform: translateY(0.5px);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   VARIANTE PRIMARY — sólido navy, texto crema
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-primary,
+.lg-btn--primary,
+button.btn-primary,
+button.lg-btn--primary {
+    background: var(--shc-primary) !important;
+    color: var(--shc-primary-fg) !important;
+    border-color: var(--shc-primary) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn-primary:hover:not(:disabled),
+.lg-btn--primary:hover:not(:disabled) {
+    background: var(--shc-primary-hover) !important;
+    border-color: var(--shc-primary-hover) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 82, 0.18) !important;
+    transform: none !important;
+}
+
+.btn-primary:active:not(:disabled),
+.lg-btn--primary:active:not(:disabled) {
+    background: var(--shc-primary-active) !important;
+    border-color: var(--shc-primary-active) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(0.5px) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   VARIANTE SECONDARY — gris claro neutral
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-secondary,
+.lg-btn--secondary {
+    background: var(--shc-secondary) !important;
+    color: var(--shc-secondary-fg) !important;
+    border-color: var(--shc-border) !important;
+}
+
+.btn-secondary:hover:not(:disabled),
+.lg-btn--secondary:hover:not(:disabled) {
+    background: var(--shc-secondary-hover) !important;
+}
+
+.btn-secondary:active:not(:disabled),
+.lg-btn--secondary:active:not(:disabled) {
+    background: var(--shc-secondary-active) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   VARIANTE DESTRUCTIVE — rojo sólido
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-destructive,
+.btn-danger,
+.btn-danger-vision,
+.btn-bot-delete,
+.lg-btn--destructive,
+.btn-remove-product {
+    background: var(--shc-destructive) !important;
+    color: var(--shc-destructive-fg) !important;
+    border-color: var(--shc-destructive) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+    background-image: none !important; /* mata gradientes legacy */
+}
+
+.btn-destructive:hover:not(:disabled),
+.btn-danger:hover:not(:disabled),
+.btn-danger-vision:hover:not(:disabled),
+.btn-bot-delete:hover:not(:disabled),
+.lg-btn--destructive:hover:not(:disabled),
+.btn-remove-product:hover:not(:disabled) {
+    background: var(--shc-destructive-hover) !important;
+    border-color: var(--shc-destructive-hover) !important;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25) !important;
+    filter: none !important;
+}
+
+.btn-destructive:focus-visible,
+.btn-danger:focus-visible,
+.lg-btn--destructive:focus-visible {
+    box-shadow: 0 0 0 2px #FAF7F0, 0 0 0 4px var(--shc-ring-destructive) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   VARIANTE SUCCESS — verde
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-success,
+.lg-btn--success {
+    background: var(--shc-success) !important;
+    color: var(--shc-success-fg) !important;
+    border-color: var(--shc-success) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+    background-image: none !important;
+}
+.btn-success:hover:not(:disabled),
+.lg-btn--success:hover:not(:disabled) {
+    background: var(--shc-success-hover) !important;
+    border-color: var(--shc-success-hover) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   VARIANTE OUTLINE — transparente con borde
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-outline,
+.lg-btn--outline,
+.btn-bot-datos,
+.btn-bot-avanzado {
+    background: transparent !important;
+    color: var(--shc-fg) !important;
+    border: 1px solid var(--shc-border-strong) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.btn-outline:hover:not(:disabled),
+.lg-btn--outline:hover:not(:disabled),
+.btn-bot-datos:hover:not(:disabled),
+.btn-bot-avanzado:hover:not(:disabled) {
+    background: var(--shc-secondary) !important;
+    color: var(--shc-fg) !important;
+    border-color: var(--shc-border-strong) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   VARIANTE GHOST — sin fondo hasta hover
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-ghost,
+.lg-btn--ghost {
+    background: transparent !important;
+    color: var(--shc-fg) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    background-image: none !important;
+}
+
+.btn-ghost:hover:not(:disabled),
+.lg-btn--ghost:hover:not(:disabled) {
+    background: var(--shc-secondary) !important;
+    color: var(--shc-fg) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   VARIANTE LINK — solo texto, sin caja
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-link,
+.lg-btn--link {
+    background: transparent !important;
+    color: var(--shc-primary) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    padding: 0.25rem 0.5rem !important;
+    min-height: auto !important;
+}
+.btn-link:hover:not(:disabled),
+.lg-btn--link:hover:not(:disabled) {
+    color: var(--shc-primary-hover) !important;
+    background: transparent !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   TAMAÑOS — sm / lg / icon
+   ════════════════════════════════════════════════════════════════════════ */
+.btn-sm,
+.lg-btn--sm {
+    min-height: 32px !important;
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.8125rem !important; /* 13px */
+    border-radius: var(--shc-radius-sm) !important;
+}
+
+.btn-lg,
+.lg-btn--lg {
+    min-height: 44px !important;
+    padding: 0.65rem 1.4rem !important;
+    font-size: 0.9375rem !important; /* 15px */
+    border-radius: var(--shc-radius-lg) !important;
+}
+
+.btn-icon,
+.lg-btn--icon {
+    min-height: 36px !important;
+    width: 36px !important;
+    padding: 0 !important;
+    border-radius: var(--shc-radius-sm) !important;
+}
+
+.btn-icon.btn-sm,
+.lg-btn--icon.lg-btn--sm {
+    min-height: 28px !important;
+    width: 28px !important;
+}
+
+/* Botón de cierre genérico (×) — variante ghost compacta */
+.lg-btn--icon {
+    background: transparent !important;
+    color: var(--shc-muted) !important;
+    border-color: transparent !important;
+}
+.lg-btn--icon:hover:not(:disabled) {
+    background: var(--shc-secondary) !important;
+    color: var(--shc-fg) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   COMPATIBILIDAD CON NOMBRES LEGACY DEL PROYECTO
+   ────────────────────────────────────────────────────────────────────────
+   El proyecto tiene varios "skins" históricos (apple, vision, ks-).
+   Los normalizamos al look shadcn manteniendo el comportamiento esperado.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Apple-primary → shadcn primary */
+.btn-apple-primary,
+#nuevo-bot-btn {
+    background: var(--shc-primary) !important;
+    color: var(--shc-primary-fg) !important;
+    border: 1px solid var(--shc-primary) !important;
+    border-radius: var(--shc-radius) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+    background-image: none !important;
+}
+.btn-apple-primary:hover:not(:disabled),
+#nuevo-bot-btn:hover:not(:disabled) {
+    background: var(--shc-primary-hover) !important;
+    border-color: var(--shc-primary-hover) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 82, 0.18) !important;
+    filter: none !important;
+}
+
+/* Conectar bot — outline navy con énfasis */
+.btn-bot-conectar {
+    background: var(--shc-primary) !important;
+    color: var(--shc-primary-fg) !important;
+    border: 1px solid var(--shc-primary) !important;
+    border-radius: var(--shc-radius) !important;
+    background-image: none !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+.btn-bot-conectar:hover:not(:disabled) {
+    background: var(--shc-primary-hover) !important;
+    border-color: var(--shc-primary-hover) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 82, 0.18) !important;
+    filter: none !important;
+}
+
+/* Logout button — outline destructive sutil */
+#logout-btn {
+    background: transparent !important;
+    color: var(--shc-destructive) !important;
+    border: 1px solid rgba(220, 38, 38, 0.30) !important;
+    background-image: none !important;
+    border-radius: var(--shc-radius) !important;
+}
+#logout-btn:hover:not(:disabled) {
+    background: rgba(220, 38, 38, 0.08) !important;
+    border-color: var(--shc-destructive) !important;
+    color: var(--shc-destructive) !important;
+}
+
+/* Tutorial reactivar — ghost con tono cálido */
+#btn-reactivate-tutorial {
+    background: transparent !important;
+    color: var(--shc-fg) !important;
+    border: 1px solid var(--shc-border) !important;
+    border-radius: var(--shc-radius) !important;
+}
+#btn-reactivate-tutorial:hover:not(:disabled) {
+    background: var(--shc-secondary) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   BOTONES INLINE-STYLED (los más comunes que aparecen con style="..."
+   en el JS). Usamos selectores de atributo para alcanzar los más usados
+   sin tocar el JS. La cobertura no es 100% pero acierta los típicos.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Botones con background:#22C55E o similares — acción positiva (responder) */
+button[style*="#22C55E"],
+button[style*="#22c55e"] {
+    background: var(--shc-success) !important;
+    color: var(--shc-success-fg) !important;
+    border-radius: var(--shc-radius) !important;
+    background-image: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+    font-weight: 500 !important;
+}
+button[style*="#22C55E"]:hover:not(:disabled),
+button[style*="#22c55e"]:hover:not(:disabled) {
+    background: var(--shc-success-hover) !important;
+    filter: none !important;
+}
+
+/* Botones con #EF4444 / #ef4444 — acción destructiva */
+button[style*="#EF4444"],
+button[style*="#ef4444"] {
+    background: var(--shc-destructive) !important;
+    color: var(--shc-destructive-fg) !important;
+    border-radius: var(--shc-radius) !important;
+    background-image: none !important;
+    font-weight: 500 !important;
+}
+button[style*="#EF4444"]:hover:not(:disabled),
+button[style*="#ef4444"]:hover:not(:disabled) {
+    background: var(--shc-destructive-hover) !important;
+    filter: none !important;
+}
+
+/* Botones con background:#000052 — primary inline */
+button[style*="background:#000052"]:not(.btn-bot-conectar),
+button[style*="background: #000052"]:not(.btn-bot-conectar),
+button[style*="background-color:#000052"]:not(.btn-bot-conectar),
+button[style*="background-color: #000052"]:not(.btn-bot-conectar) {
+    background: var(--shc-primary) !important;
+    color: var(--shc-primary-fg) !important;
+    border-radius: var(--shc-radius) !important;
+    background-image: none !important;
+    font-weight: 500 !important;
+}
+button[style*="background:#000052"]:not(.btn-bot-conectar):hover:not(:disabled),
+button[style*="background: #000052"]:not(.btn-bot-conectar):hover:not(:disabled),
+button[style*="background-color:#000052"]:not(.btn-bot-conectar):hover:not(:disabled),
+button[style*="background-color: #000052"]:not(.btn-bot-conectar):hover:not(:disabled) {
+    background: var(--shc-primary-hover) !important;
+    filter: none !important;
+}
+
+/* Botones con #7c3aed o #7C3AED — púrpura "Aprender" */
+button[style*="#7c3aed"],
+button[style*="#7C3AED"] {
+    background: #7c3aed !important;
+    color: #FFFFFF !important;
+    border-radius: var(--shc-radius) !important;
+    background-image: none !important;
+    font-weight: 500 !important;
+}
+button[style*="#7c3aed"]:hover:not(:disabled),
+button[style*="#7C3AED"]:hover:not(:disabled) {
+    background: #6d28d9 !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   BOTONES DEL EDITOR DE WORKFLOW (Cytoscape) — paleta shadcn aplicada
+   ════════════════════════════════════════════════════════════════════════ */
+.kipu-mindmap-btn,
+.kipu-mindmap-zbtn,
+.kipu-palette-btn {
+    border-radius: var(--shc-radius-sm) !important;
+    transition: background-color var(--shc-duration) var(--shc-ease),
+                border-color var(--shc-duration) var(--shc-ease),
+                color var(--shc-duration) var(--shc-ease) !important;
+}
+.kipu-mindmap-btn.ghost {
+    background: transparent !important;
+    color: var(--shc-fg) !important;
+    border: 1px solid var(--shc-border) !important;
+}
+.kipu-mindmap-btn.ghost:hover:not(:disabled) {
+    background: var(--shc-secondary) !important;
+    border-color: var(--shc-border-strong) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   TABS DE NOTIFICACIONES — pill-style limpio
+   ════════════════════════════════════════════════════════════════════════ */
+.notif-tab {
+    border-radius: var(--shc-radius-sm) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    padding: 0.4rem 0.85rem !important;
+    transition: background-color var(--shc-duration) var(--shc-ease),
+                color var(--shc-duration) var(--shc-ease) !important;
+}
+.notif-tab.active {
+    background: var(--shc-primary) !important;
+    color: var(--shc-primary-fg) !important;
+}
+.notif-tab:not(.active) {
+    background: transparent !important;
+    color: var(--shc-muted) !important;
+}
+.notif-tab:not(.active):hover {
+    background: var(--shc-secondary) !important;
+    color: var(--shc-fg) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   INPUTS / TEXTAREAS — para que combinen con los botones nuevos
+   ════════════════════════════════════════════════════════════════════════ */
+input[type="text"]:not(.no-shc),
+input[type="email"]:not(.no-shc),
+input[type="password"]:not(.no-shc),
+input[type="search"]:not(.no-shc),
+input[type="number"]:not(.no-shc),
+input[type="tel"]:not(.no-shc),
+input[type="url"]:not(.no-shc),
+textarea:not(.no-shc),
+select:not(.no-shc) {
+    transition:
+        border-color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease);
+}
+input[type="text"]:not(.no-shc):focus,
+input[type="email"]:not(.no-shc):focus,
+input[type="password"]:not(.no-shc):focus,
+input[type="search"]:not(.no-shc):focus,
+input[type="number"]:not(.no-shc):focus,
+input[type="tel"]:not(.no-shc):focus,
+input[type="url"]:not(.no-shc):focus,
+textarea:not(.no-shc):focus,
+select:not(.no-shc):focus {
+    outline: none;
+    border-color: var(--shc-primary);
+    box-shadow: 0 0 0 3px var(--shc-ring);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   PLAN BADGE en sidebar — chip neutral
+   ════════════════════════════════════════════════════════════════════════ */
+.plan-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    padding: 0.15rem 0.6rem;
+    background: var(--shc-secondary);
+    color: var(--shc-fg);
+    border: 1px solid var(--shc-border);
+    border-radius: var(--shc-radius-pill);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   LIQUID GLASS OVERRIDES — aplastar efectos heredados
+   ────────────────────────────────────────────────────────────────────────
+   Algunos modales todavía usan .lg-overlay y .lg-surface. Los dejamos
+   para no romper el modal de Mi cuenta, pero quitamos los pseudo-elementos
+   decorativos de los botones internos para que el look sea uniforme.
+   ════════════════════════════════════════════════════════════════════════ */
+.lg-overlay .lg-btn,
+.lg-surface .lg-btn {
+    text-shadow: none !important;
+}
+.lg-overlay .lg-btn::before,
+.lg-overlay .lg-btn::after,
+.lg-surface .lg-btn::before,
+.lg-surface .lg-btn::after {
+    display: none !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   AUTH VIEW (login / register) — look shadcn minimalista
+   ────────────────────────────────────────────────────────────────────────
+   Reemplaza los gradientes/blur que heredaba este formulario por inputs
+   y botón sólidos, con border sutil, focus ring accesible y radius 8px.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Inputs — blanco sólido, border gris fino, sin gradientes */
+#auth-view .auth-form input[type="text"],
+#auth-view .auth-form input[type="email"],
+#auth-view .auth-form input[type="password"] {
+    width: 100%;
+    background: var(--shc-input-bg) !important;
+    background-image: none !important;
+    color: var(--shc-fg) !important;
+    border: 1px solid var(--shc-border) !important;
+    border-radius: var(--shc-radius) !important;
+    padding: 0.65rem 0.9rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.4 !important;
+    min-height: 40px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition:
+        border-color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease);
+}
+
+#auth-view .auth-form input[type="text"]::placeholder,
+#auth-view .auth-form input[type="email"]::placeholder,
+#auth-view .auth-form input[type="password"]::placeholder {
+    color: var(--shc-muted);
+}
+
+#auth-view .auth-form input[type="text"]:focus,
+#auth-view .auth-form input[type="email"]:focus,
+#auth-view .auth-form input[type="password"]:focus {
+    outline: none;
+    border-color: var(--shc-primary) !important;
+    box-shadow: 0 0 0 3px var(--shc-ring) !important;
+    background: var(--shc-input-bg) !important;
+}
+
+/* Labels — alineados sin el padding-left heredado del look apple */
+#auth-view .auth-form .form-group label {
+    padding-left: 0 !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    color: var(--shc-fg) !important;
+    margin-bottom: 0.4rem !important;
+}
+
+/* Botón "Ingresar" / "Crear Cuenta" — primary shadcn lg, full-width */
+#auth-view .btn-primary {
+    background: var(--shc-primary) !important;
+    background-image: none !important;
+    color: var(--shc-primary-fg) !important;
+    border: 1px solid var(--shc-primary) !important;
+    border-radius: var(--shc-radius-lg) !important;
+    min-height: 44px !important;
+    padding: 0.65rem 1.4rem !important;
+    font-size: 0.9375rem !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.005em !important;
+    text-shadow: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition:
+        background-color var(--shc-duration) var(--shc-ease),
+        border-color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease);
+}
+
+#auth-view .btn-primary::before,
+#auth-view .btn-primary::after {
+    display: none !important;
+    content: none !important;
+}
+
+#auth-view .btn-primary:hover:not(:disabled) {
+    background: var(--shc-primary-hover) !important;
+    border-color: var(--shc-primary-hover) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 82, 0.18) !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+#auth-view .btn-primary:active:not(:disabled) {
+    background: var(--shc-primary-active) !important;
+    border-color: var(--shc-primary-active) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(0.5px) !important;
+}
+
+#auth-view .btn-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FAF7F0, 0 0 0 4px var(--shc-ring) !important;
+}
+
+/* Link "¿Olvidaste tu contraseña?" y switch login/registro */
+#auth-view .auth-switch a,
+#auth-view .auth-form a {
+    color: var(--shc-primary) !important;
+    text-decoration: none;
+    font-weight: 500;
+}
+#auth-view .auth-switch a:hover,
+#auth-view .auth-form a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   PLAN MODAL — "Cambiar de plan" (look shadcn, dialog estilo card)
+   ────────────────────────────────────────────────────────────────────────
+   Reemplaza el .lg-surface glassy por un dialog blanco sólido con cards
+   limpias, badges discretos, y check-icons en lugar de bullets nativos.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.kipu-plan-dialog {
+    width: 100%;
+    max-width: 1040px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 51, 0.08);
+    border-radius: 14px;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.06),
+        0 18px 44px rgba(0, 0, 30, 0.18);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--shc-fg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.kipu-plan-dialog__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem 1.75rem 1.1rem;
+    border-bottom: 1px solid rgba(0, 0, 51, 0.06);
+    flex-wrap: wrap;
+}
+
+.kipu-plan-dialog__heading {
+    flex: 1 1 320px;
+    min-width: 0;
+}
+
+.kipu-plan-dialog__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+    .kipu-plan-dialog__header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* Toggle mensual/anual — segmented control shadcn */
+.kipu-plan-billing-toggle {
+    display: inline-flex;
+    background: rgba(0, 0, 51, 0.05);
+    border: 1px solid rgba(0, 0, 51, 0.08);
+    border-radius: var(--shc-radius);
+    padding: 3px;
+    gap: 2px;
+}
+
+.kipu-plan-billing-toggle__opt {
+    background: transparent !important;
+    color: rgba(0, 0, 51, 0.6) !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important;
+    padding: 0.4rem 0.85rem !important;
+    min-height: 30px !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    background-image: none !important;
+    transition:
+        background-color var(--shc-duration) var(--shc-ease),
+        color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease);
+}
+
+.kipu-plan-billing-toggle__opt::before,
+.kipu-plan-billing-toggle__opt::after {
+    display: none !important;
+    content: none !important;
+}
+
+.kipu-plan-billing-toggle__opt:hover:not(.is-active) {
+    color: var(--shc-fg) !important;
+    background: transparent !important;
+}
+
+.kipu-plan-billing-toggle__opt.is-active {
+    background: #FFFFFF !important;
+    color: var(--shc-fg) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 51, 0.06) !important;
+}
+
+.kipu-plan-billing-toggle__hint {
+    display: inline-block;
+    margin-left: 0.35rem;
+    padding: 0.05rem 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--shc-success);
+    background: rgba(22, 163, 74, 0.10);
+    border-radius: 4px;
+    line-height: 1.4;
+}
+
+.kipu-plan-dialog__title {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-style: normal;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--shc-fg);
+    line-height: 1.3;
+}
+
+.kipu-plan-dialog__subtitle {
+    margin: 0.4rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--shc-muted);
+    max-width: 560px;
+}
+
+.kipu-plan-dialog__close {
+    flex-shrink: 0;
+    background: transparent !important;
+    /* Antes var(--shc-muted) (rgba 0.55) — sobre el fondo claro del modal el
+       SVG del × se veía "en blanco". 0.82 + stroke-width:2 (en el SVG) hace
+       que el glifo siempre se distinga. */
+    color: rgba(0, 0, 51, 0.82) !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--shc-radius-sm) !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    cursor: pointer;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+    background-image: none !important;
+    transition:
+        background-color var(--shc-duration) var(--shc-ease),
+        color var(--shc-duration) var(--shc-ease);
+}
+/* Garantiza que el SVG interno use el color del botón (currentColor).
+   Sin esto, si el SVG dependiera de un atributo `stroke` hardcoded, el ✕
+   podía verse "en blanco". */
+.kipu-plan-dialog__close svg {
+    stroke: currentColor;
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.kipu-plan-dialog__close:hover:not(:disabled) {
+    background: var(--shc-secondary) !important;
+    color: var(--shc-fg) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.kipu-plan-dialog__close:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px var(--shc-ring) !important;
+}
+
+.kipu-plan-grid {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem 1.75rem 1.75rem;
+}
+
+@media (max-width: 720px) {
+    .kipu-plan-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.kipu-plan-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.4rem 1.25rem;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 51, 0.10);
+    border-radius: 10px;
+    transition:
+        border-color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease);
+}
+
+.kipu-plan-card:hover:not(.kipu-plan-card--current) {
+    border-color: rgba(0, 0, 51, 0.22);
+    box-shadow: 0 4px 12px rgba(0, 0, 30, 0.06);
+}
+
+.kipu-plan-card--current {
+    border-color: var(--shc-primary);
+    box-shadow: 0 0 0 1px var(--shc-primary), 0 4px 12px rgba(0, 0, 30, 0.06);
+    background: linear-gradient(180deg, rgba(0, 0, 82, 0.025) 0%, transparent 55%);
+}
+
+.kipu-plan-card--popular {
+    border-color: rgba(0, 0, 51, 0.18);
+    box-shadow: 0 4px 14px rgba(0, 0, 30, 0.08);
+}
+
+.kipu-plan-card__badge {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    background: var(--shc-primary);
+    color: var(--shc-primary-fg);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--shc-radius-pill);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.kipu-plan-card__badge--accent {
+    background: #16A34A;
+    color: #FFFFFF;
+}
+
+.kipu-plan-card__name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(0, 0, 51, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.kipu-plan-card__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.kipu-plan-card__price {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--shc-fg);
+    line-height: 1.1;
+    letter-spacing: -0.022em;
+    margin-top: -0.1rem;
+}
+
+.kipu-plan-card__price-suffix {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--shc-muted);
+    line-height: 1.2;
+}
+
+.kipu-plan-card__savings {
+    margin-top: -0.1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--shc-success);
+    letter-spacing: 0.01em;
+}
+
+.kipu-plan-card__tagline {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--shc-muted);
+    min-height: 2.5em;
+}
+
+.kipu-plan-card__divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 51, 0.08);
+    margin: 0.4rem 0 0.2rem;
+}
+
+.kipu-plan-card__features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    flex: 1;
+    color: rgba(0, 0, 51, 0.78);
+    font-size: 0.825rem;
+    line-height: 1.45;
+}
+
+.kipu-plan-card__features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+}
+
+.kipu-plan-card__features svg {
+    flex-shrink: 0;
+    margin-top: 0.18rem;
+    color: var(--shc-success);
+}
+
+.kipu-plan-card__cta {
+    margin-top: 0.85rem;
+    width: 100%;
+    min-height: 38px !important;
+    padding: 0.55rem 1rem !important;
+    background: var(--shc-primary) !important;
+    color: var(--shc-primary-fg) !important;
+    border: 1px solid var(--shc-primary) !important;
+    border-radius: var(--shc-radius) !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    background-image: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition:
+        background-color var(--shc-duration) var(--shc-ease),
+        border-color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease);
+}
+
+.kipu-plan-card__cta::before,
+.kipu-plan-card__cta::after {
+    display: none !important;
+    content: none !important;
+}
+
+.kipu-plan-card__cta:hover:not(:disabled) {
+    background: var(--shc-primary-hover) !important;
+    border-color: var(--shc-primary-hover) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 82, 0.18) !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.kipu-plan-card__cta:active:not(:disabled) {
+    background: var(--shc-primary-active) !important;
+    border-color: var(--shc-primary-active) !important;
+    transform: translateY(0.5px) !important;
+}
+
+.kipu-plan-card__cta:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px var(--shc-ring) !important;
+}
+
+.kipu-plan-card__cta--current,
+.kipu-plan-card__cta:disabled {
+    background: transparent !important;
+    color: rgba(0, 0, 51, 0.55) !important;
+    border-color: rgba(0, 0, 51, 0.15) !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    opacity: 1 !important;
+    pointer-events: none;
+}
+
+.kipu-plan-dialog__footer {
+    padding: 1rem 1.75rem 1.4rem;
+    border-top: 1px solid rgba(0, 0, 51, 0.06);
+    font-size: 0.78rem;
+    color: var(--shc-muted);
+    line-height: 1.5;
+    text-align: center;
+    background: rgba(0, 0, 51, 0.015);
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   INFO DIALOG — alert shadcn de un solo botón (acknowledge only)
+   ────────────────────────────────────────────────────────────────────────
+   Para mensajes informativos cortos donde el usuario solo confirma "ok".
+   Usado por el popup de "downgrade no disponible" y reutilizable para
+   futuros alerts informacionales. Mantiene la estética shadcn (sin glass,
+   sin italic, tipografía Inter, navy + crema) pero con un emoji grande
+   para tono más ligero.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.kipu-info-dialog {
+    width: 100%;
+    max-width: 460px;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 51, 0.08);
+    border-radius: 14px;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.06),
+        0 18px 44px rgba(0, 0, 30, 0.18);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--shc-fg);
+    padding: 2rem 1.75rem 1.5rem;
+    text-align: center;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.kipu-info-dialog__emoji {
+    font-size: 2.6rem;
+    line-height: 1;
+    margin-bottom: 0.85rem;
+    user-select: none;
+}
+
+.kipu-info-dialog__title {
+    margin: 0 0 0.55rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-style: normal;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--shc-fg);
+    line-height: 1.25;
+}
+
+.kipu-info-dialog__body {
+    margin: 0 0 1.4rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--shc-muted);
+}
+
+.kipu-info-dialog__body strong {
+    color: var(--shc-fg);
+    font-weight: 600;
+}
+
+.kipu-info-dialog__footer {
+    display: flex;
+    justify-content: center;
+}
+
+.kipu-info-dialog__cta {
+    min-width: 160px;
+    min-height: 40px !important;
+    padding: 0.55rem 1.25rem !important;
+    background: var(--shc-primary) !important;
+    color: var(--shc-primary-fg) !important;
+    border: 1px solid var(--shc-primary) !important;
+    border-radius: var(--shc-radius) !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    background-image: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition:
+        background-color var(--shc-duration) var(--shc-ease),
+        border-color var(--shc-duration) var(--shc-ease),
+        box-shadow var(--shc-duration) var(--shc-ease);
+}
+
+.kipu-info-dialog__cta::before,
+.kipu-info-dialog__cta::after {
+    display: none !important;
+    content: none !important;
+}
+
+.kipu-info-dialog__cta:hover:not(:disabled) {
+    background: var(--shc-primary-hover) !important;
+    border-color: var(--shc-primary-hover) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 82, 0.18) !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.kipu-info-dialog__cta:active:not(:disabled) {
+    background: var(--shc-primary-active) !important;
+    transform: translateY(0.5px) !important;
+}
+
+.kipu-info-dialog__cta:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px var(--shc-ring) !important;
+}

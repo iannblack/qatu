@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qhatu — Vende en automático con IA</title>
+    <meta name="description" content="Automatiza tus ventas por WhatsApp, Instagram y TikTok con Maya, tu asistente de IA.">
+    <meta http-equiv="refresh" content="0;url=/panel/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #FAF7F0;
+            color: #000052;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .container { max-width: 500px; }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic; font-weight: 700;
+            font-size: 3rem; margin-bottom: 1rem;
+        }
+        p {
+            color: rgba(0,0,82,0.60);
+            font-size: 1rem; margin-bottom: 2rem; line-height: 1.6;
+        }
+        a {
+            display: inline-block;
+            background: #000052; color: #FFF;
+            padding: 0.9rem 2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        a:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,82,0.15); }
+        .loading {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: rgba(0,0,82,0.35);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Qhatu</h1>
+        <p>Automatiza tus ventas por WhatsApp con inteligencia artificial. Redirigiendo...</p>
+        <a href="/panel/">Ir a Qhatu</a>
+        <div class="loading">Redirigiendo automaticamente...</div>
+    </div>
+    <script>
+        // Auto-redirect after a moment (meta refresh is backup)
+        setTimeout(function() { window.location.href = '/panel/'; }, 1500);
+    </script>
+</body>
+</html>

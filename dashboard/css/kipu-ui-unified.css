@@ -1,0 +1,474 @@
+/**
+ * KIPU — Sistema visual unificado (tarjetas, toolbars, botones, campos)
+ * Paleta: navy #000052 · crema #FAF7F0 · borde rgba(0,0,82,0.14)
+ *
+ * Orden estándar en toolbar de página:
+ *   1. Tienda (select)  2. Vendedor (select)  3. Periodo (pills, si aplica)
+ *   4. [spacer]  5. Exportar Excel (si aplica)
+ */
+
+/* ─── Page header + toolbar ───────────────────────────────────────── */
+.kipu-page-header,
+.main-header.kipu-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.kipu-page-header h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 2.2rem;
+    letter-spacing: -0.02em;
+    color: #000052;
+    margin: 0;
+}
+
+.kipu-page-toolbar,
+.analytics-filters-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+}
+
+.kipu-page-toolbar__spacer {
+    flex: 1;
+    min-width: 0.5rem;
+}
+
+/* ─── Campo label + select (Tienda, Vendedor, etc.) ─────────────── */
+.cmd-bot-selector,
+.kipu-field,
+.ventas-bot-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.kipu-field > label,
+.ventas-bot-selector > label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(0, 0, 82, 0.55);
+    white-space: nowrap;
+    margin: 0;
+}
+
+.kipu-field > select,
+.ventas-bot-selector > select,
+.kipu-select {
+    background: #FAF7F0;
+    border: 1px solid rgba(0, 0, 82, 0.12);
+    border-radius: 10px;
+    padding: 0.48rem 2.25rem 0.48rem 0.85rem;
+    color: #000052;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23516790' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    min-width: 168px;
+}
+
+.kipu-field > select:hover,
+.ventas-bot-selector > select:hover,
+.kipu-select:hover {
+    border-color: rgba(0, 0, 82, 0.22);
+    background-color: #F5EFE0;
+}
+
+.kipu-field > select:focus,
+.ventas-bot-selector > select:focus,
+.kipu-select:focus {
+    outline: none;
+    border-color: rgba(0, 0, 82, 0.35);
+    box-shadow: 0 0 0 3px rgba(0, 0, 82, 0.1);
+}
+
+/* ─── Botones base ─────────────────────────────────────────────── */
+.kipu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.48rem 1rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.kipu-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.kipu-btn svg {
+    flex-shrink: 0;
+}
+
+/* Primario — acción principal (crear, guardar, confirmar) */
+.kipu-btn--primary,
+.kipu-env-btn-primary {
+    background: #000052;
+    color: #FAF7F0;
+    border-color: #000052;
+}
+
+.kipu-btn--primary:hover:not(:disabled),
+.kipu-env-btn-primary:hover:not(:disabled) {
+    background: #1a1a6e;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 82, 0.18);
+}
+
+/* Secundario — filtrar, cancelar, acciones auxiliares */
+.kipu-btn--secondary,
+.kipu-env-btn-secondary,
+.crm-uf-trigger,
+.crm-dr-trigger {
+    background: #FAF7F0;
+    color: #000052;
+    border: 1px solid rgba(0, 0, 82, 0.14);
+}
+
+.kipu-btn--secondary:hover:not(:disabled),
+.kipu-env-btn-secondary:hover:not(:disabled),
+.crm-uf-trigger:hover,
+.crm-dr-trigger:hover {
+    background: #F5EFE0;
+    border-color: rgba(0, 0, 82, 0.22);
+    transform: translateY(-1px);
+}
+
+.crm-uf-trigger.has-active,
+.crm-dr-trigger.has-active {
+    background: #EFF6FF;
+    border-color: #BFDBFE;
+    color: #1D4ED8;
+}
+
+.crm-uf-trigger.has-active svg,
+.crm-dr-trigger.has-active svg {
+    color: #2563EB;
+}
+
+/* Exportar Excel — mismo look en CRM, Analytics, etc. */
+.kipu-btn--export,
+.sales-export-btn,
+#crm-export-excel-btn {
+    background: linear-gradient(135deg, rgba(0, 0, 82, 0.12), rgba(0, 0, 82, 0.04));
+    border: 1px solid rgba(0, 0, 82, 0.28);
+    color: #000052;
+}
+
+.kipu-btn--export:hover:not(:disabled),
+.sales-export-btn:hover:not(:disabled),
+#crm-export-excel-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(0, 0, 82, 0.2), rgba(0, 0, 82, 0.08));
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 82, 0.1);
+}
+
+.kipu-btn--export svg,
+.sales-export-btn svg,
+#crm-export-excel-btn svg {
+    stroke: #000052;
+}
+
+/* Outline — workflow mindmap toolbar, etc. */
+.kipu-btn--outline,
+.kipu-mm-btn-outline {
+    background: #FAF7F0;
+    color: #000052;
+    border: 1px solid rgba(0, 0, 82, 0.18);
+}
+
+.kipu-btn--outline:hover:not(:disabled),
+.kipu-mm-btn-outline:hover:not(:disabled) {
+    background: #F5EFE0;
+    border-color: rgba(0, 0, 82, 0.3);
+}
+
+/* ─── Pills de periodo / filtro rápido ─────────────────────────── */
+.kipu-pills,
+.analytics-date-presets {
+    display: inline-flex;
+    align-items: center;
+    background: #F5EFE0;
+    border: 1px solid rgba(0, 0, 82, 0.1);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.kipu-pill,
+.filter-pill,
+.analytics-date-presets .filter-pill {
+    border: none;
+    background: transparent;
+    color: rgba(0, 0, 82, 0.55);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+}
+
+.kipu-pill:hover,
+.filter-pill:hover {
+    color: #000052;
+    background: rgba(0, 0, 82, 0.06);
+}
+
+.kipu-pill.active,
+.filter-pill.active,
+.analytics-date-presets .filter-pill.active {
+    background: rgba(0, 0, 82, 0.12);
+    color: #000052;
+}
+
+/* ─── Búsqueda ─────────────────────────────────────────────────── */
+.kipu-search,
+.sales-search,
+.kipu-env-search,
+.rec-search {
+    flex: 1;
+    min-width: 160px;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 82, 0.12);
+    background: #FAF7F0;
+    color: #000052;
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.kipu-search::placeholder,
+.sales-search::placeholder,
+.kipu-env-search::placeholder,
+.rec-search::placeholder {
+    color: rgba(0, 0, 82, 0.38);
+}
+
+.kipu-search:focus,
+.sales-search:focus,
+.kipu-env-search:focus,
+.rec-search:focus {
+    outline: none;
+    border-color: rgba(0, 0, 82, 0.3);
+    box-shadow: 0 0 0 3px rgba(0, 0, 82, 0.08);
+}
+
+/* ─── Toolbar secundaria (envíos: buscar + acciones) ───────────── */
+.kipu-action-toolbar,
+.kipu-env-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin: 0 1.5rem 1rem;
+}
+
+/* ─── Shell de tarjeta / tablero (CRM boards) ──────────────────── */
+.kipu-board-shell,
+.crm-board-shell {
+    background: #FDF6EC;
+    border: 1px solid #E8DFD4;
+    border-radius: 18px;
+    box-shadow: 0 2px 14px rgba(62, 48, 36, 0.06);
+}
+
+.kipu-board-shell-header,
+.crm-board-shell-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem 1.25rem;
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid rgba(0, 0, 82, 0.06);
+}
+
+.kipu-board-shell-title,
+.crm-board-shell-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2D3E50;
+    margin: 0;
+}
+
+.kipu-board-shell-subtitle,
+.crm-board-shell-subtitle {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #7C98B6;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ─── Empty state ──────────────────────────────────────────────── */
+.kipu-empty,
+.kipu-env-empty,
+.crm-board-empty-msg {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: rgba(0, 0, 82, 0.42);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* ─── Sub-tabs de sección (Envíos, Analytics cards) ────────────── */
+.kipu-subtabs-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.25rem 0 0.75rem;
+}
+
+.kipu-subtab {
+    padding: 0.42rem 0.95rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 82, 0.12);
+    background: #FAF7F0;
+    color: rgba(0, 0, 82, 0.65);
+    transition: all 0.18s ease;
+}
+
+.kipu-subtab:hover {
+    background: #F5EFE0;
+    color: #000052;
+}
+
+.kipu-subtab.active,
+.kipu-sub-tab.active,
+.env-subtab.active {
+    background: #000052;
+    color: #FAF7F0;
+    border-color: #000052;
+}
+
+/* Alias inventario / catálogo / equipo */
+.kipu-page-subtitle {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 51, 0.4);
+    font-weight: 400;
+    margin: 0.25rem 0 0;
+}
+
+/* Inventario — botones alineados al sistema */
+.inv-btn-primary,
+.catalog-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.48rem 1rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1px solid #000052;
+    background: #000052;
+    color: #FAF7F0;
+    transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.inv-btn-primary:hover,
+.catalog-add-btn:hover {
+    background: #1a1a6e;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 82, 0.18);
+}
+
+.inv-btn-ghost,
+.inv-btn-secondary,
+.catalog-sync-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.48rem 1rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    background: #FAF7F0;
+    color: #000052;
+    border: 1px solid rgba(0, 0, 82, 0.14);
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.inv-btn-ghost:hover,
+.inv-btn-secondary:hover,
+.catalog-sync-btn:hover {
+    background: #F5EFE0;
+    border-color: rgba(0, 0, 82, 0.22);
+    transform: translateY(-1px);
+}
+
+/* Equipo de ventas — primario alineado */
+#section-equipo-ventas .ev-btn--primary {
+    background: #000052;
+    color: #FAF7F0;
+    border-color: #000052;
+    border-radius: 10px;
+    padding: 0.48rem 1rem;
+    font-size: 0.82rem;
+}
+
+#section-equipo-ventas .ev-btn--primary:hover {
+    background: #1a1a6e;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 82, 0.18);
+}
+
+@media (max-width: 768px) {
+    .kipu-page-toolbar,
+    .analytics-filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kipu-field > select,
+    .ventas-bot-selector > select,
+    .kipu-select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .kipu-btn--export,
+    .sales-export-btn,
+    #crm-export-excel-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
